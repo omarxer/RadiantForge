@@ -356,10 +356,11 @@
         <p>Discover and create powerful crosshairs.</p>
         <button>Open Tool</button>
     </div>
-    <div class="card" data-page="lineups.html">
+    <!-- Lineup Library -> Coming Soon Modal -->
+    <div class="card" id="lineupCard">
         <h2>📚 Lineup Library</h2>
         <p>Learn lineups for every agent and map.</p>
-        <button>Open Tool</button>
+        <button>Coming Soon</button>
     </div>
     <div class="card" data-page="wheels.html">
         <h2>🎲 Challenge Wheels</h2>
@@ -371,10 +372,11 @@
         <p>Get personalized training plans.</p>
         <button>Open Tool</button>
     </div>
-    <div class="card" id="setupShowcaseCard">
+    <!-- Setup Showcase -> يعمل بشكل طبيعي -->
+    <div class="card" data-page="setupshowcase.html">
         <h2>⭐ Setup Showcase</h2>
         <p>Share your gaming setup.</p>
-        <button>Coming Soon</button>
+        <button>Open Tool</button>
     </div>
 </section>
 
@@ -416,13 +418,13 @@
     </div>
 </div>
 
-<!-- مودال Coming Soon لـ Setup Showcase -->
+<!-- مودال Coming Soon لـ Lineup Library -->
 <div id="comingsoonModal" class="comingsoon-modal">
     <div class="comingsoon-box">
         <span class="close-comingsoon">&times;</span>
-        <div class="google-icon" style="font-size:3rem;">🔧</div>
+        <div style="font-size:3rem;">📚</div>
         <h2>Coming Soon</h2>
-        <p>Setup Showcase is currently under construction. We're forging an amazing space for you to share and discover gaming setups. Stay tuned!</p>
+        <p>Lineup Library is currently under construction. We're gathering the best lineups for every agent and map. Stay tuned for the ultimate lineup tool!</p>
         <div class="progress-bar"><div class="progress-fill"></div></div>
         <button class="close-comingsoon-btn" style="background:#ff2200; border:none; padding:10px 24px; border-radius:40px; cursor:pointer; margin-top:10px;">Got it 🔥</button>
     </div>
@@ -477,15 +479,13 @@
     window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
     resizeCanvas(); initParticles(); animateParticles();
 
-    // الانتقال إلى الصفحات (باستثناء Setup Showcase)
+    // الانتقال إلى الصفحات (للبطاقات التي لها data-page)
     function navigateTo(page) {
         window.location.href = `pages/${page}`;
     }
-    document.querySelectorAll('.card').forEach(card => {
+    document.querySelectorAll('.card[data-page]').forEach(card => {
         const page = card.getAttribute('data-page');
-        if (page) {
-            card.addEventListener('click', () => navigateTo(page));
-        }
+        card.addEventListener('click', () => navigateTo(page));
     });
     document.getElementById('enterForgeBtn').addEventListener('click', () => {
         document.getElementById('tools').scrollIntoView({ behavior: 'smooth' });
@@ -504,9 +504,9 @@
     if (closeCommunity) closeCommunity.addEventListener('click', closeCommunityModal);
     window.addEventListener('click', (e) => { if (e.target === modalCommunity) closeCommunityModal(); });
 
-    // ========== مودال Coming Soon لـ Setup Showcase ==========
+    // ========== مودال Coming Soon لـ Lineup Library ==========
     const modalComingSoon = document.getElementById('comingsoonModal');
-    const setupCard = document.getElementById('setupShowcaseCard');
+    const lineupCard = document.getElementById('lineupCard');
     const closeComingSoon = document.querySelector('.close-comingsoon');
     const closeBtn = document.querySelector('.close-comingsoon-btn');
 
@@ -516,8 +516,8 @@
     function closeComingSoonModal() {
         modalComingSoon.style.display = 'none';
     }
-    if (setupCard) {
-        setupCard.addEventListener('click', openComingSoonModal);
+    if (lineupCard) {
+        lineupCard.addEventListener('click', openComingSoonModal);
     }
     if (closeComingSoon) closeComingSoon.addEventListener('click', closeComingSoonModal);
     if (closeBtn) closeBtn.addEventListener('click', closeComingSoonModal);
