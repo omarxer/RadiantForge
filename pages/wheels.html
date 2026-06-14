@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RadiantForge Wheel Center</title>
+
+<link rel="stylesheet" href="../style.css">
+
+<style>
+
+body{
+background:#0D0D0D;
+color:white;
+font-family:Orbitron,sans-serif;
+}
+
+.container{
+width:90%;
+max-width:1200px;
+margin:auto;
+padding:40px;
+text-align:center;
+}
+
+.title{
+font-size:60px;
+color:#FF4655;
+text-shadow:0 0 20px #FF4655;
+margin-bottom:15px;
+}
+
+.subtitle{
+color:#aaa;
+margin-bottom:50px;
+}
+
+.wheels{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(300px,1fr));
+
+gap:25px;
+
+}
+
+.wheel-card{
+
+background:#151515;
+
+border:1px solid #FF4655;
+
+padding:30px;
+
+border-radius:12px;
+
+box-shadow:0 0 20px rgba(255,70,85,.2);
+
+}
+
+.wheel-card h2{
+
+color:#FF4655;
+
+margin-bottom:20px;
+
+}
+
+.result{
+
+font-size:32px;
+
+height:80px;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+font-weight:bold;
+
+}
+
+.spin-btn{
+
+margin-top:40px;
+
+padding:18px 45px;
+
+background:#FF4655;
+
+border:none;
+
+color:white;
+
+font-size:20px;
+
+cursor:pointer;
+
+border-radius:10px;
+
+box-shadow:0 0 25px #FF4655;
+
+transition:.3s;
+
+}
+
+.spin-btn:hover{
+
+transform:scale(1.08);
+
+}
+
+.final-box{
+
+margin-top:50px;
+
+background:#151515;
+
+border:1px solid #FF4655;
+
+padding:25px;
+
+border-radius:12px;
+
+}
+
+.final-box h2{
+
+color:#FF4655;
+
+margin-bottom:15px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+<div class="logo">
+RadiantForge
+</div>
+
+<ul class="nav-links">
+
+<li>
+<a href="../index.html">Home</a>
+</li>
+
+</ul>
+
+</nav>
+
+<div class="container">
+
+<h1 class="title">
+Wheel Center
+</h1>
+
+<p class="subtitle">
+Random Valorant Challenges
+</p>
+
+<div class="wheels">
+
+<div class="wheel-card">
+
+<h2>
+🎯 Agent
+</h2>
+
+<div
+class="result"
+id="agentResult">
+
+?
+
+</div>
+
+</div>
+
+<div class="wheel-card">
+
+<h2>
+🔫 Weapon
+</h2>
+
+<div
+class="result"
+id="weaponResult">
+
+?
+
+</div>
+
+</div>
+
+<div class="wheel-card">
+
+<h2>
+💀 Challenge
+</h2>
+
+<div
+class="result"
+id="challengeResult">
+
+?
+
+</div>
+
+</div>
+
+</div>
+
+<button
+class="spin-btn"
+onclick="spinAll()">
+
+🎲 SPIN
+
+</button>
+
+<div class="final-box">
+
+<h2>
+Final Loadout
+</h2>
+
+<p id="finalResult">
+
+Press Spin...
+
+</p>
+
+</div>
+
+</div>
+
+<script>
+
+const agents = [
+
+"Jett",
+"Reyna",
+"Sova",
+"Cypher",
+"Omen",
+"Killjoy",
+"Fade",
+"Viper",
+"Brimstone",
+"Phoenix",
+"Yoru",
+"Raze",
+"Chamber",
+"Skye",
+"Harbor",
+"Gekko",
+"Deadlock",
+"Iso",
+"Clove"
+
+];
+
+const weapons = [
+
+"Vandal",
+"Phantom",
+"Sheriff",
+"Guardian",
+"Operator",
+"Judge",
+"Bulldog",
+"Spectre",
+"Marshal",
+"Classic"
+
+];
+
+const challenges = [
+
+"Sheriff Only",
+"Classic Only",
+"No Abilities",
+"Knife Only",
+"Walk Only",
+"Headshots Only",
+"No Scope",
+"Guardian Only",
+"Marshal Only",
+"Rush Every Round"
+
+];
+
+function animateWheel(
+element,
+array,
+callback
+){
+
+let count = 0;
+
+const interval = setInterval(()=>{
+
+element.innerText =
+array[
+Math.floor(
+Math.random()*array.length
+)
+];
+
+count++;
+
+if(count > 25){
+
+clearInterval(interval);
+
+const finalChoice =
+array[
+Math.floor(
+Math.random()*array.length
+)
+];
+
+element.innerText =
+finalChoice;
+
+callback(finalChoice);
+
+}
+
+},80);
+
+}
+
+function spinAll(){
+
+let finalAgent;
+let finalWeapon;
+let finalChallenge;
+
+animateWheel(
+document.getElementById(
+"agentResult"
+),
+agents,
+(result)=>{
+
+finalAgent=result;
+
+}
+);
+
+animateWheel(
+document.getElementById(
+"weaponResult"
+),
+weapons,
+(result)=>{
+
+finalWeapon=result;
+
+}
+);
+
+animateWheel(
+document.getElementById(
+"challengeResult"
+),
+challenges,
+(result)=>{
+
+finalChallenge=result;
+
+setTimeout(()=>{
+
+document.getElementById(
+"finalResult"
+).innerHTML =
+
+"🎯 Agent: <b>" +
+finalAgent +
+"</b><br><br>" +
+
+"🔫 Weapon: <b>" +
+finalWeapon +
+"</b><br><br>" +
+
+"💀 Challenge: <b>" +
+finalChallenge +
+"</b>";
+
+},250);
+
+}
+);
+
+}
+
+</script>
+
+</body>
+</html>

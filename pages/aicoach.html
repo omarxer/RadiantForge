@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>RadiantForge - المدرب الذكي (عربي)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', 'Tahoma', sans-serif;
+            background: #0a0303;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 20%, #1a0505, #000000);
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: repeating-linear-gradient(45deg, rgba(255,40,40,0.03) 0px, rgba(255,40,40,0.03) 3px, transparent 3px, transparent 15px);
+            animation: drift 40s linear infinite;
+        }
+        @keyframes drift {
+            0% { transform: translate(0,0); }
+            100% { transform: translate(100px, 100px); }
+        }
+        #particleField {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.45;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(10,5,5,0.75);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid #ff4444;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff4444, #ff8888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+            letter-spacing: 3px;
+        }
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #ffbbbb;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .nav-links a:hover {
+            color: #ff3333;
+            text-shadow: 0 0 5px red;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .title {
+            text-align: center;
+            font-size: 3rem;
+            background: linear-gradient(135deg, #ff5555, #ffaaaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+        .chat-container {
+            background: rgba(15, 5, 5, 0.7);
+            backdrop-filter: blur(12px);
+            border: 2px solid #ff4444;
+            border-radius: 32px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 550px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+        }
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message.ai {
+            align-self: flex-start;
+        }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ff4444;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .message.user .avatar {
+            background: #333;
+        }
+        .bubble {
+            background: #1f1f1f;
+            padding: 12px 18px;
+            border-radius: 20px;
+            border-top-left-radius: 5px;
+            word-wrap: break-word;
+            line-height: 1.6;
+            font-family: monospace;
+            font-size: 0.95rem;
+            text-align: right;
+        }
+        .message.user .bubble {
+            background: #ff2200;
+            color: white;
+            border-top-right-radius: 5px;
+            border-top-left-radius: 20px;
+        }
+        .typing {
+            font-style: italic;
+            opacity: 0.7;
+        }
+        .chat-input-area {
+            display: flex;
+            gap: 12px;
+            padding: 15px;
+            background: #0a0202;
+            border-top: 1px solid #ff4444;
+        }
+        .chat-input-area input {
+            flex: 1;
+            background: #151515;
+            border: 1px solid #ff5555;
+            border-radius: 40px;
+            padding: 12px 20px;
+            color: white;
+            font-family: monospace;
+            font-size: 0.9rem;
+            text-align: right;
+        }
+        .chat-input-area input:focus {
+            outline: none;
+            border-color: #ff8888;
+        }
+        .chat-input-area button {
+            background: #ff2200;
+            border: none;
+            padding: 0 25px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            transition: 0.2s;
+        }
+        .chat-input-area button:hover {
+            background: #ff5555;
+            transform: scale(1.02);
+        }
+        .forge-footer {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            border-top: 2px solid #ff3333;
+            padding: 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .small-note {
+            font-size: 0.7rem;
+            color: #aa7777;
+            text-align: center;
+            margin-top: 15px;
+        }
+        @media (max-width: 750px) {
+            .navbar { padding: 15px 20px; }
+            .container { padding: 10px; }
+            .chat-container { height: 480px; }
+        }
+    </style>
+</head>
+<body>
+<div class="hero-bg"></div>
+<canvas id="particleField"></canvas>
+
+<nav class="navbar">
+    <div class="logo" id="radiantLogo">RadiantForge</div>
+    <ul class="nav-links">
+        <li><a href="../index.html">الرئيسية</a></li>
+    </ul>
+</nav>
+
+<div class="container">
+    <h1 class="title">🧠 المدرب الذكي</h1>
+    <p class="subtitle">اسأل عن أي شيء في فالورانت — تصويب، أبطال، خرائط، اقتصادية، كروسهير، نصائح احترافية</p>
+
+    <div class="chat-container">
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai">
+                <div class="avatar">🤖</div>
+                <div class="bubble">مرحباً! أنا مدربك الشخصي لفالورانت. اسألني بالعربية أو الإنجليزية، وسأجيب بلغتك. كيف يمكنني مساعدتك اليوم؟ مثلاً: "ازاي أحسن التصويب؟" أو "أفضل كروسهير؟" أو "طريقة لعب جيت؟"</div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="userInput" placeholder="اكتب سؤالك هنا... (مثال: إزاي ألعب سوفا؟ أو أفضل إعدادات حساسية)" autocomplete="off">
+            <button id="sendBtn">إرسال</button>
+        </div>
+    </div>
+    <div class="small-note">
+        💡 هذا المدرب يعمل بدون إنترنت — يعتمد على قاعدة معرفة متخصصة في فالورانت.
+    </div>
+</div>
+
+<footer class="forge-footer">
+    <div class="footer-copy">© 2026 RadiantForge — المدرب الذكي (دعم كامل للعربية)</div>
+</footer>
+
+<script>
+    // جسيمات الخلفية
+    const canvas = document.getElementById('particleField');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+    function resizeCanvas() {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+    }
+    class Particle {
+        constructor() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.r = Math.random() * 2 + 0.5;
+            this.vx = (Math.random() - 0.5) * 0.25;
+            this.vy = (Math.random() - 0.5) * 0.2;
+            this.alpha = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0) this.x = w;
+            if (this.x > w) this.x = 0;
+            if (this.y < 0) this.y = h;
+            if (this.y > h) this.y = 0;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255, 80, 80, ${this.alpha})`;
+            ctx.fill();
+        }
+    }
+    function initParticles() {
+        particles = [];
+        let count = Math.min(350, Math.floor(w * h / 7000));
+        for (let i=0; i<count; i++) particles.push(new Particle());
+    }
+    function animateParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animateParticles);
+    }
+    window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+    resizeCanvas(); initParticles(); animateParticles();
+
+    document.getElementById('radiantLogo').addEventListener('click', () => {
+        window.location.href = '../index.html';
+    });
+
+    // ------------------- محرك الردود الذكي (عربي + إنجليزي) -------------------
+    function detectLanguage(text) {
+        // بسيط: إذا احتوى النص على أحرف عربية
+        const arabicPattern = /[\u0600-\u06FF]/;
+        return arabicPattern.test(text) ? 'ar' : 'en';
+    }
+
+    function getResponse(userMessage, lang) {
+        const msg = userMessage.toLowerCase().trim();
+        
+        // قاعدة عربية (الأولوية للعربية)
+        if (lang === 'ar') {
+            // تصويب وتدريب
+            if (msg.includes('تصويب') || msg.includes('aim') || msg.includes('تدريب تصويب') || msg.includes('ازاي احسن التصويب')) {
+                return "🎯 **لتحسين التصويب:**\n1- تدرب في The Range على 100 هدف بالدروع.\n2- العب Deathmatch بمسدس Sheriff فقط.\n3- استخدم Aim Lab أوkova مدرب خارجي.\n4- قلل الحساسية (معظم المحترفين 200-400 eDPI).\n5- حافظ على مستوى الكروسهير عند مستوى الرأس دائماً.";
+            }
+            if (msg.includes('كروسهير') || msg.includes('crosshair') || msg.includes('علامة التصويب')) {
+                return "🔫 **نصائح الكروسهير:**\nاستخدم كروسهير صغير وثابت (مثل 1-4-2-2). تجنب الإطارات وحركة التصويب. رموز مشهورة: 0;P;c;5;o;1;0l;4;0o;2;0a;1;0f;0;1b;0. جرب ستايل TenZ أو Cryocells. الألوان الأفضل: أخضر، سماوي، أو أبيض.";
+            }
+            if (msg.includes('حساسية') || msg.includes('sensitivity') || msg.includes('sen')) {
+                return "⚙️ **إعدادات الحساسية:**\nمعظم المحترفين يستخدمون 0.3-0.5 عند 800 DPI (ما يعادل 240-400 eDPI). ابدأ بـ 0.4 على 800 DPI ثم اضبط ±0.05. يجب أن تتمكن من عمل 180 درجة بمسحة واحدة للماوس.";
+            }
+            if (msg.includes('وضعية') || msg.includes('position') || msg.includes('زاوية') || msg.includes('تمركز')) {
+                return "📐 **التمركز الصحيح:**\nألعب دائماً بالقرب من الغطاء، وتجنب المساحات المفتوحة. استخدم زوايا غير متوقعة بعد التصويب. لا تكرر نفس الزاوية مرتين. عند الدفاع، غيّر مواقعك كل جولة.";
+            }
+            if (msg.includes('تضبيط') || msg.includes('recoil') || msg.includes('ركلات') || msg.includes('سبري')) {
+                return "💥 **التحكم في الارتداد:**\nفاندال: اسحب للأسفل قليلاً بعد 3 طلقات. فانتوم: ارتداد أسهل، اسحب للأسفل واليسار. تدرب على رشقات من 10 طلقات في الرينج حتى تتجمع الطلقات في دائرة صغيرة.";
+            }
+            if (msg.includes('بطل') || msg.includes('agent') || msg.includes('شخصية') || msg.includes('أبطال')) {
+                return "🦸 **اختيار الأبطال:**\nأتقن 2-3 أبطال لكل دور. للمبتدئين: سيج، بريمستون، فينيكس. للاعبين المنفردين: رينا أو تشامبر. جيت: ممتازة للمسابقات. سوفا: ممتاز للاستطلاع. فايبر: ممتاز للسيطرة على الموقع.";
+            }
+            if (msg.includes('اقتصاد') || msg.includes('اقتصادية') || msg.includes('فلوس') || msg.includes('money')) {
+                return "💰 **دليل الاقتصاد:**\nاشتري كاملاً عند 3900-4500. ألعب قوة بعد فوز جولة المسدس. ادخر بعد خسارة جولتين. اشتر خفيف (سبكتر + درع خفيف) إذا الفريق فلوسه قليلة. تواصل مع فريقك!";
+            }
+            if (msg.includes('خريطة') || msg.includes('map') || msg.includes('أسنت') || msg.includes('بيند') || msg.includes('هايفن')) {
+                return "🗺️ **السيطرة على الخرائط:**\nأتعلم الدخانات والقنابل الأساسية لكل موقع. في أسنت، تحكم في المنتصف. في بيند، استخدم الناقل الآني للدوران السريع. في هايفن، دافع A short و C long بإحكام. ضع خطة لكل موقع.";
+            }
+            if (msg.includes('إحساس') || msg.includes('game sense') || msg.includes('حدس') || msg.includes('ذكاء')) {
+                return "🧠 **تحسين الإحساس باللعبة:**\nانظر إلى الخريطة كل 3 ثوانٍ. توقع أماكن الأعداء بناءً على الوقت. استخدم عملية الاستبعاد. بعد موتك، فكر: 'لماذا مت؟' شاهد فيديوهات المحترفين واسأل نفسك 'ماذا كنت سأفعل هنا؟'";
+            }
+            if (msg.includes('vandal') || msg.includes('فاندال') && msg.includes('فانتوم')) {
+                return "🔫 **فاندال ضد فانتوم:**\nفاندال: تقتل برأس من أي مسافة، أفضل للمواجهات البعيدة. فانتوم: بدون أثر رصاص، ارتداد أسهل، تضرب رأس 140 بين 15-30 متراً. اختر فاندال إذا كنت تحب التصويب الفردي، وفانتوم إذا كنت تحب الرش أو اللعب في الدخان.";
+            }
+            if (msg.includes('نفسية') || msg.includes('mental') || msg.includes('تilt') || msg.includes('غضب')) {
+                return "🧘 **نصائح نفسية:**\nخذ استراحة بعد خسارتين متتاليتين. اكتم أو كتم اللاعبين السامين فوراً. تنفس بعمق بين الجولات. ركز على تحسينك أنت وليس على الرتبة. العب لتتعلم وليس لتفوز.";
+            }
+            if (msg.includes('روتين') || msg.includes('تدريب يومي') || msg.includes('practice')) {
+                return "📅 **الروتين اليومي (30 دقيقة):**\n5 دقائق رينج (أهداف)، 10 دقائق Deathmatch بمسدس فقط، 10 دقائق Unrated مع التركيز على وضع الكروسهير، 5 دقائق مراجعة فيديو لمباراتك. تسخين قبل الرانكد!";
+            }
+            if (msg.includes('رتبة') || msg.includes('rank') || msg.includes('تسلق') || msg.includes('تقدم')) {
+                return "📈 **لتسلق الرتب:**\nركز على 3 أشياء: وضع الكروسهير، تبادل القتلات، واستخدام الأدوات. توقف عن اللعب بعد خسارتين متتاليتين. العب مع صديق (duo) مع تواصل جيد. راجع مباراة خاسرة واحدة يومياً.";
+            }
+            if (msg.includes('جيت') || msg.includes('jett')) {
+                return "🌪️ **نصائح جيت:**\nاستخدم القفزة النفاثة + الدخان لتصويبات غير متوقعة. لا تنقض في الموقع مباشرة - انقض على الصناديق أو خلف دخان. تدرب على قنص + انقضاض في لعبة مخصصة.";
+            }
+            if (msg.includes('سوفا') || msg.includes('sova')) {
+                return "🏹 **نصائح سوفا:**\nتعلم على الأقل 3 قنابل صادمة لكل موقع. استخدم القنابل الاستطلاعية عالياً أو منخفضة لتجنب إطلاق النار عليها. تدرب على القنابل المزدوجة. استخدم الدرون قبل الدخول.";
+            }
+            if (msg.includes('فايبر') || msg.includes('viper')) {
+                return "🐍 **نصائح فايبر:**\nاستخدم الكرة للحجب الأحادي. تعلم الخطوط لإدارة الوقود بعد زرع القنبلة. الجدار يجب أن يقطع رؤية المدافعين. يمكنك التقاط الكرة وإعادة استخدامها.";
+            }
+            if (msg.includes('كيلجوي') || msg.includes('killjoy')) {
+                return "🤖 **إعدادات كيلجوي:**\nضع منبه + سرب معاً لقتلات سريعة. اخفِ الأدوات في أماكن غير متوقعة. استرجع الأدوات قبل الدوران. الألتي تمنع الزرع/الفك — استخدمه بعد الزرع.";
+            }
+            // تحيات
+            if (msg.includes('سلام') || msg.includes('مرحب') || msg.includes('هلا') || msg.includes('السلام') || msg.includes('اهلا')) {
+                return "👋 وعليكم السلام! كيف أقدر أساعدك في فالورانت اليوم؟ اسأل عن أي شيء.";
+            }
+            if (msg.includes('شكرا') || msg.includes('thank')) {
+                return "🙏 العفو! أنا هنا لمساعدتك دائمًا. أي سؤال آخر؟";
+            }
+            // رد عام بالعربية
+            return "🤔 عذراً، لم أفهم سؤالك تماماً. حاول أن تسأل عن: التصويب، الكروسهير، الحساسية، الأبطال، الخرائط، الاقتصاد، أو النصائح الذهنية. سأجيبك بأفضل ما عندي!";
+        }
+        
+        // ---------- الإنجليزية (إذا اكتشفنا لغة إنجليزية) ----------
+        else {
+            // Same English responses as before, concise
+            if (msg.includes('aim') || msg.includes('how to improve aim')) return "🎯 To improve aim: 1) Range with armor. 2) Sheriff Deathmatch. 3) Aim Lab grid shot. 4) Lower sensitivity (200-400 eDPI). 5) Crosshair at head level.";
+            if (msg.includes('crosshair')) return "🔫 Crosshair tips: small static (1-4-2-2). Avoid outline/movement error. Popular codes: 0;P;c;5;o;1;0l;4;0o;2;0a;1;0f;0;1b;0.";
+            if (msg.includes('sensitivity')) return "⚙️ Sensitivity: 0.3-0.5 at 800 DPI (240-400 eDPI). Start 0.4 @800, adjust ±0.05. You should 180° with one swipe.";
+            if (msg.includes('position')) return "📐 Positioning: stay near cover, avoid open spaces, hold off-angles, don't double-peek, switch positions each round.";
+            if (msg.includes('spray') || msg.includes('recoil')) return "💥 Recoil: Vandal pull down after 3 shots. Phantom down-left. Practice 10-bursts in Range.";
+            if (msg.includes('agent')) return "🦸 Agent tip: Master 2-3 agents. Beginners: Sage, Brim, Phoenix. Solo carry: Reyna or Chamber.";
+            if (msg.includes('economy')) return "💰 Economy: Full buy at 3900. Force after pistol win. Save after 2 losses. Light buy (Spectre + light) if team low. Communicate!";
+            if (msg.includes('map')) return "🗺️ Map control: Learn default smokes/lineups. Ascent: control mid. Bind: use teleporters. Haven: defend A short and C long.";
+            if (msg.includes('game sense')) return "🧠 Game sense: Watch minimap every 3 sec. Predict enemy positions. After death, think 'Why?' Watch pro VODs.";
+            if (msg.includes('vandal') && msg.includes('phantom')) return "🔫 Vandal vs Phantom: Vandal one-tap any range. Phantom no tracers, better spray, 140 headshot at 15-30m.";
+            if (msg.includes('mental')) return "🧘 Mental: break after 2 losses, mute toxic players, breathe, focus on improvement not rank.";
+            if (msg.includes('practice') || msg.includes('routine')) return "📅 Daily routine: 5min Range, 10min Sheriff DM, 10min Unrated (crosshair focus), 5min VOD review.";
+            if (msg.includes('rank') || msg.includes('climb')) return "📈 Climbing: Focus on crosshair placement, trading, utility usage. Stop after 2 losses. Duo with comms. Review 1 loss daily.";
+            if (msg.includes('jett')) return "🌪️ Jett: updraft+smoke for unexpected peaks, dash onto boxes/smoke, practice OP+dash.";
+            if (msg.includes('sova')) return "🏹 Sova: learn 3 shock darts per site, recon high/low, double shocks, drone before entry.";
+            if (msg.includes('viper')) return "🐍 Viper: orb for one-ways, learn post-plant fuel lineups, wall cuts defender vision, pick up orb.";
+            if (msg.includes('killjoy')) return "🤖 Killjoy: alarmbot+nanoswarm for kills, hide utility, recall before rotate, ult denies plant/defuse.";
+            if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey')) return "👋 Hello! Ask me any VALORANT question. I can help with aim, agents, economy, maps, and more.";
+            if (msg.includes('thank')) return "🙏 You're welcome! Happy to help.";
+            return "🤔 I'm not sure about that. Could you rephrase? Ask about aim, crosshair, agents, maps, economy, positioning, recoil, or game sense.";
+        }
+    }
+
+    // ----- نظام الشات -----
+    const chatMessagesDiv = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function addMessage(role, text) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.innerText = role === 'user' ? '👤' : '🤖';
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.innerText = text;
+        messageDiv.appendChild(avatar);
+        messageDiv.appendChild(bubble);
+        chatMessagesDiv.appendChild(messageDiv);
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+        addMessage('user', text);
+        userInput.value = '';
+        
+        // مؤشر كتابة
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message ai';
+        typingDiv.innerHTML = `<div class="avatar">🤖</div><div class="bubble typing">✍️ جاري التفكير...</div>`;
+        chatMessagesDiv.appendChild(typingDiv);
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const lang = detectLanguage(text);
+        const reply = getResponse(text, lang);
+        typingDiv.remove();
+        addMessage('ai', reply);
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+</script>
+</body>
+</html>

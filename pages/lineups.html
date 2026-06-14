@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RadiantForge Lineups</title>
+    <link rel="stylesheet" href="../style.css">
+    <style>
+        body {
+            background: #0D0D0D;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid #FF4655;
+        }
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #FF4655;
+            text-shadow: 0 0 8px #FF4655;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 25px;
+        }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .nav-links a:hover {
+            color: #FF4655;
+        }
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: auto;
+            padding: 40px;
+        }
+        .title {
+            text-align: center;
+            font-size: 55px;
+            color: #FF4655;
+            margin-bottom: 15px;
+            text-shadow: 0 0 20px #FF4655;
+        }
+        .subtitle {
+            text-align: center;
+            color: #999;
+            margin-bottom: 40px;
+        }
+        .filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+        .filters select,
+        .filters button {
+            padding: 15px;
+            background: #151515;
+            border: 1px solid #FF4655;
+            color: white;
+            min-width: 220px;
+            font-family: 'Orbitron', monospace;
+        }
+        .search-btn {
+            cursor: pointer;
+            background: #FF4655;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .search-btn:hover {
+            background: #ff6677;
+            box-shadow: 0 0 10px #FF4655;
+        }
+        .video-box {
+            background: #151515;
+            border: 1px solid #FF4655;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        iframe {
+            width: 100%;
+            height: 650px;
+            border: none;
+            border-radius: 10px;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 20px;
+            background: #111;
+            border-left: 4px solid #FF4655;
+        }
+        .favorite-btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: #FF4655;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-family: 'Orbitron', monospace;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .favorite-btn:hover {
+            background: #ff6677;
+            transform: scale(1.02);
+        }
+        @media (max-width: 800px) {
+            .container { padding: 20px; }
+            iframe { height: 350px; }
+            .filters select, .filters button { min-width: 160px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">RadiantForge</div>
+        <ul class="nav-links">
+            <li><a href="../index.html">Home</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <h1 class="title">Lineup Library</h1>
+        <p class="subtitle">Find useful Valorant lineups instantly.</p>
+        <div class="filters">
+            <select id="agent"></select>
+            <select id="map"></select>
+            <select id="site">
+                <option>A Site</option>
+                <option>B Site</option>
+                <option>Mid / Other</option>
+            </select>
+            <button class="search-btn" onclick="loadLineup()">Search Lineup</button>
+        </div>
+        <div class="video-box">
+            <iframe id="videoFrame" src="https://www.youtube.com/embed/8ybW48rKBME?rel=0&modestbranding=1" allowfullscreen></iframe>
+            <div class="info">
+                <h2 id="lineupTitle">Select an agent, map and site</h2>
+                <p>Recommended lineup tutorial will appear here.</p>
+                <button class="favorite-btn" onclick="saveFavorite()">⭐ Save Lineup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== جميع الأبطال (Agents) ==========
+        const agentsList = [
+            "Sova", "Viper", "Killjoy", "Brimstone", "Cypher", "Breach", "Omen", "Jett", "Phoenix",
+            "Skye", "Raze", "Astra", "Harbor", "Gekko", "Deadlock", "Iso", "Clove", "Neon", "Reyna",
+            "Yoru", "KAYO", "Fade", "Sage", "Chamber"
+        ];
+
+        // ========== جميع الخرائط (Maps) ==========
+        const mapsList = [
+            "Ascent", "Bind", "Haven", "Lotus", "Split", "Pearl", "Icebox", "Breeze", "Fracture",
+            "Sunset", "Abyss"
+        ];
+
+        // ========== قاعدة بيانات الفيديوهات (يمكنك تعديل الروابط بسهولة) ==========
+        // المفتاح: Agent_Map_Site (Site يطابق النص في الـ select: "A Site", "B Site", "Mid / Other")
+        const videos = {
+            // === Sova (أمثلة حقيقية من يوتيوب) ===
+            "Sova_Ascent_A Site": "https://www.youtube.com/embed/NhJ_6WZdRyk",
+            "Sova_Ascent_B Site": "https://www.youtube.com/embed/LgPQo0S73dg",
+            "Sova_Bind_A Site": "https://www.youtube.com/embed/op0KbG5dJSc",
+            "Sova_Bind_B Site": "https://www.youtube.com/embed/ipnI0y6zApU",
+            "Sova_Haven_A Site": "https://www.youtube.com/embed/dbKpclMK_qM",
+            "Sova_Haven_B Site": "https://www.youtube.com/embed/kUQlV7W6eUo",
+            "Sova_Lotus_A Site": "https://www.youtube.com/embed/6TZeSsH9vY4",
+            "Sova_Lotus_B Site": "https://www.youtube.com/embed/tQJgXjFygH0",
+            "Sova_Icebox_A Site": "https://www.youtube.com/embed/8UCLDzP5kZ0",
+            "Sova_Icebox_B Site": "https://www.youtube.com/embed/7XHcQVcFjxs",
+            
+            // === Viper ===
+            "Viper_Bind_A Site": "https://www.youtube.com/embed/yh8nWw2gF4Y",
+            "Viper_Bind_B Site": "https://www.youtube.com/embed/GFq7zS0z0o0",
+            "Viper_Icebox_A Site": "https://www.youtube.com/embed/3Cf7YgT5rPc",
+            "Viper_Icebox_B Site": "https://www.youtube.com/embed/4nGc5LjHrfY",
+            "Viper_Breeze_A Site": "https://www.youtube.com/embed/qJdUvWt0tZo",
+            "Viper_Breeze_B Site": "https://www.youtube.com/embed/1tMxGQzCdp0",
+            
+            // === Killjoy ===
+            "Killjoy_Ascent_A Site": "https://www.youtube.com/embed/ZLjrnhGp6fQ",
+            "Killjoy_Ascent_B Site": "https://www.youtube.com/embed/W-3UdfYtfP4",
+            "Killjoy_Bind_A Site": "https://www.youtube.com/embed/8yK-8zQ6bgc",
+            "Killjoy_Haven_A Site": "https://www.youtube.com/embed/YlV5HcFqPxM",
+            
+            // === Brimstone ===
+            "Brimstone_Ascent_A Site": "https://www.youtube.com/embed/XlA2LxGqQcU",
+            "Brimstone_Bind_B Site": "https://www.youtube.com/embed/GfK0tVqk6bA",
+            "Brimstone_Haven_A Site": "https://www.youtube.com/embed/RzHJqFvEqfU",
+            
+            // === Cypher ===
+            "Cypher_Ascent_A Site": "https://www.youtube.com/embed/6_7mQjD8h2E",
+            "Cypher_Bind_B Site": "https://www.youtube.com/embed/bJfLtBq4L0g",
+            
+            // === Breach ===
+            "Breach_Haven_A Site": "https://www.youtube.com/embed/CfN-xGgNPDQ",
+            
+            // === Omen ===
+            "Omen_Ascent_A Site": "https://www.youtube.com/embed/Tz4bMv-jLzg",
+            "Omen_Bind_B Site": "https://www.youtube.com/embed/8n4gRqJf0dU",
+            
+            // === Jett (مثال) ===
+            "Jett_Ascent_A Site": "https://www.youtube.com/embed/uZ4fH2V-fTQ",
+            
+            // === Skye ===
+            "Skye_Ascent_A Site": "https://www.youtube.com/embed/1LxYxKJ-7AY",
+            
+            // === Raze ===
+            "Raze_Bind_A Site": "https://www.youtube.com/embed/Ko-5aRqmGgI",
+            
+            // === KAYO ===
+            "KAYO_Ascent_B Site": "https://www.youtube.com/embed/7NfT6RrJqE8",
+            
+            // === Fade ===
+            "Fade_Haven_A Site": "https://www.youtube.com/embed/p-lHp7c6KGY",
+            
+            // === Gekko ===
+            "Gekko_Lotus_A Site": "https://www.youtube.com/embed/8jN5fH0cTQQ",
+            
+            // === Harbor ===
+            "Harbor_Pearl_A Site": "https://www.youtube.com/embed/4zH2VXhPbNY",
+            
+            // === Astra ===
+            "Astra_Ascent_A Site": "https://www.youtube.com/embed/7Y3dNkRg4lU"
+        };
+
+        // دالة لملء الخيارات في الـ select
+        function populateSelect(selectId, options) {
+            const select = document.getElementById(selectId);
+            select.innerHTML = "";
+            options.forEach(opt => {
+                const option = document.createElement("option");
+                option.value = opt;
+                option.textContent = opt;
+                select.appendChild(option);
+            });
+        }
+
+        // ملء القوائم المنسدلة
+        populateSelect("agent", agentsList);
+        populateSelect("map", mapsList);
+
+        // دالة البحث الأساسية
+        function loadLineup() {
+            const agent = document.getElementById("agent").value;
+            const map = document.getElementById("map").value;
+            const site = document.getElementById("site").value;
+            const key = agent + "_" + map + "_" + site;
+            const frame = document.getElementById("videoFrame");
+            const title = document.getElementById("lineupTitle");
+
+            if (videos[key]) {
+                frame.src = videos[key] + "?rel=0&modestbranding=1";
+                title.innerText = agent + " • " + map + " • " + site;
+            } else {
+                // إذا لم يوجد فيديو محدد، نعرض فيديو عام للأجنت ونخبر المستخدم
+                title.innerText = agent + " • " + map + " • " + site + " (No specific lineup yet)";
+                // اختيار فيديو افتراضي للأجنت أو عام
+                const fallbackKey = agent + "_Ascent_A Site";
+                if (videos[fallbackKey]) {
+                    frame.src = videos[fallbackKey] + "?rel=0&modestbranding=1";
+                } else {
+                    frame.src = "https://www.youtube.com/embed/8ybW48rKBME?rel=0&modestbranding=1";
+                }
+            }
+        }
+
+        // حفظ التفضيلات (يمكن تخزين محلياً)
+        function saveFavorite() {
+            const agent = document.getElementById("agent").value;
+            const map = document.getElementById("map").value;
+            const site = document.getElementById("site").value;
+            const currentTitle = document.getElementById("lineupTitle").innerText;
+            alert(`⭐ Saved: ${currentTitle}\nYou can bookmark this lineup for later.`);
+            // يمكن إضافة localStorage هنا لتخزين المفضلة
+            let favs = JSON.parse(localStorage.getItem("fav_lineups") || "[]");
+            favs.push({ agent, map, site, time: new Date().toLocaleString() });
+            localStorage.setItem("fav_lineups", JSON.stringify(favs));
+        }
+
+        // تحميل أول فيديو تلقائياً عند فتح الصفحة
+        window.onload = () => {
+            // تعيين قيم افتراضية أولية
+            document.getElementById("agent").value = "Sova";
+            document.getElementById("map").value = "Ascent";
+            document.getElementById("site").value = "A Site";
+            loadLineup();
+        };
+    </script>
+</body>
+</html>

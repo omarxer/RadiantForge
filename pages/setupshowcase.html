@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RadiantForge Setup Showcase</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Orbitron', monospace;
+    }
+    body {
+        background: #0D0D0D;
+        color: white;
+        overflow-x: hidden;
+        position: relative;
+    }
+    body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        background: radial-gradient(circle, rgba(255,70,85,0.35) 3px, transparent 4px),
+                    radial-gradient(circle, rgba(255,70,85,0.25) 4px, transparent 5px),
+                    radial-gradient(circle, rgba(255,70,85,0.20) 5px, transparent 6px);
+        background-size: 160px 160px, 240px 240px, 320px 320px;
+        background-position: 0 0, 50px 80px, 120px 160px;
+        animation: moveParticles 20s linear infinite;
+        opacity: 0.5;
+    }
+    @keyframes moveParticles {
+        0% { transform: translate(0,0); }
+        100% { transform: translate(-80px,-120px); }
+    }
+    .container {
+        width: 90%;
+        max-width: 1400px;
+        margin: auto;
+        padding: 40px;
+    }
+    .title {
+        text-align: center;
+        font-size: 55px;
+        color: #FF4655;
+        margin-bottom: 30px;
+        text-shadow: 0 0 15px #FF4655;
+    }
+    .form-box {
+        background: #151515;
+        border: 1px solid #FF4655;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 40px;
+        box-shadow: 0 0 20px rgba(255,70,85,0.2);
+    }
+    input {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 15px;
+        background: #111;
+        border: 1px solid #333;
+        color: white;
+        border-radius: 8px;
+    }
+    button {
+        background: #FF4655;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        margin: 5px;
+        transition: 0.3s;
+    }
+    button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 15px #FF4655;
+    }
+    .setups {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 25px;
+    }
+    .setup-card {
+        background: #151515;
+        border: 1px solid #FF4655;
+        padding: 20px;
+        border-radius: 16px;
+        transition: 0.2s;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+    }
+    .setup-card:hover {
+        transform: translateY(-5px);
+        border-color: #ff7788;
+    }
+    .setup-card p {
+        margin: 10px 0;
+        color: #dddddd;
+        font-size: 1rem;
+    }
+    .likes {
+        margin-top: 12px;
+        font-size: 1.2rem;
+        color: #ff8888;
+    }
+    .comment-text {
+        margin-top: 12px;
+        padding: 10px;
+        background: #0a0a0a;
+        border-left: 3px solid #FF4655;
+        border-radius: 8px;
+        color: #cccccc;
+        font-style: italic;
+        word-break: break-word;
+    }
+    .button-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    .button-group button {
+        flex: 1;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+    @media (max-width: 700px) {
+        .container { padding: 20px; }
+        .title { font-size: 35px; }
+        .button-group button { padding: 8px 12px; }
+    }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1 class="title">⭐ Setup Showcase</h1>
+    <div class="form-box">
+        <input id="mouse" placeholder="Mouse (e.g., Logitech G Pro X)" autocomplete="off">
+        <input id="keyboard" placeholder="Keyboard (e.g., Wooting 60HE)">
+        <input id="sensitivity" placeholder="Sensitivity (e.g., 0.35)">
+        <input id="dpi" placeholder="DPI (e.g., 800)">
+        <button onclick="addSetup()">📢 Publish Setup</button>
+    </div>
+    <div id="setups" class="setups"></div>
+</div>
+
+<script>
+    let setups = JSON.parse(localStorage.getItem("rfSetups")) || [];
+
+    function save() {
+        localStorage.setItem("rfSetups", JSON.stringify(setups));
+    }
+
+    function escapeHtml(str) {
+        if (!str) return "";
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function render() {
+        const container = document.getElementById("setups");
+        container.innerHTML = "";
+        setups.forEach((s, index) => {
+            const commentHtml = s.comment ? `<div class="comment-text">✍️ "${escapeHtml(s.comment)}"</div>` : "";
+            container.innerHTML += `
+                <div class="setup-card">
+                    <p>🖱 Mouse: ${escapeHtml(s.mouse)}</p>
+                    <p>⌨ Keyboard: ${escapeHtml(s.keyboard)}</p>
+                    <p>🎯 Sensitivity: ${escapeHtml(s.sensitivity)}</p>
+                    <p>⚡ DPI: ${escapeHtml(s.dpi)}</p>
+                    <div class="likes">❤️ ${s.likes}</div>
+                    ${commentHtml}
+                    <div class="button-group">
+                        <button onclick="likeSetup(${index})">❤️ Like</button>
+                        <button onclick="writeComment(${index})">✍️ Write</button>
+                        <button onclick="removeSetup(${index})">🗑 Remove</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    function addSetup() {
+        const mouse = document.getElementById("mouse").value.trim();
+        const keyboard = document.getElementById("keyboard").value.trim();
+        const sensitivity = document.getElementById("sensitivity").value.trim();
+        const dpi = document.getElementById("dpi").value.trim();
+
+        if (mouse === "" && keyboard === "" && sensitivity === "" && dpi === "") {
+            alert("Please fill at least one field to publish your setup!");
+            return;
+        }
+        setups.push({
+            mouse: mouse || "Not specified",
+            keyboard: keyboard || "Not specified",
+            sensitivity: sensitivity || "Not specified",
+            dpi: dpi || "Not specified",
+            likes: 0,
+            comment: ""
+        });
+        save();
+        render();
+        // Clear form
+        document.getElementById("mouse").value = "";
+        document.getElementById("keyboard").value = "";
+        document.getElementById("sensitivity").value = "";
+        document.getElementById("dpi").value = "";
+    }
+
+    function likeSetup(index) {
+        setups[index].likes++;
+        save();
+        render();
+    }
+
+    function writeComment(index) {
+        let newComment = prompt("Write your comment or review about this setup:", setups[index].comment || "");
+        if (newComment !== null) {
+            setups[index].comment = newComment.trim() || "";
+            save();
+            render();
+        }
+    }
+
+    function removeSetup(index) {
+        if (confirm("Delete this setup permanently?")) {
+            setups.splice(index, 1);
+            save();
+            render();
+        }
+    }
+
+    render();
+</script>
+</body>
+</html>

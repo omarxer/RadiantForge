@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>RadiantForge - Guides & Tools</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #0a0303;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+        .hero-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 20%, #1a0505, #000000);
+        }
+        .hero-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: repeating-linear-gradient(45deg, rgba(255,40,40,0.03) 0px, rgba(255,40,40,0.03) 3px, transparent 3px, transparent 15px);
+            animation: drift 40s linear infinite;
+        }
+        @keyframes drift {
+            0% { transform: translate(0,0); }
+            100% { transform: translate(100px, 100px); }
+        }
+        #particleField {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.45;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(10,5,5,0.75);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid #ff4444;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff4444, #ff8888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+            letter-spacing: 3px;
+        }
+        .logo:hover {
+            text-shadow: 0 0 12px red;
+            transform: scale(1.02);
+        }
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #ffbbbb;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .nav-links a:hover {
+            color: #ff3333;
+            text-shadow: 0 0 5px red;
+        }
+        .info-section {
+            max-width: 1000px;
+            margin: 40px auto 20px;
+            padding: 20px 30px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            border: 1px solid #ff4444;
+            text-align: center;
+        }
+        .info-section h2 {
+            color: #ff8888;
+            margin-bottom: 15px;
+        }
+        .info-section p {
+            line-height: 1.6;
+            color: #ddbbbb;
+        }
+        .translate-btn {
+            background: #ff2200;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 15px auto;
+            display: inline-block;
+            font-family: 'Orbitron', monospace;
+            transition: 0.2s;
+        }
+        .translate-btn:hover {
+            background: #ff5555;
+            transform: scale(1.02);
+        }
+        .guides-header {
+            text-align: center;
+            padding: 30px 20px 20px;
+        }
+        .guides-header h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #ff5555, #ffaaaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 20px 40px;
+        }
+        .filter-btn {
+            background: rgba(30,10,10,0.8);
+            border: 1px solid #ff5555;
+            padding: 8px 20px;
+            border-radius: 40px;
+            color: #ffaaaa;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .filter-btn.active, .filter-btn:hover {
+            background: #ff2200;
+            color: black;
+            box-shadow: 0 0 12px red;
+        }
+        .guides-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 35px;
+            padding: 20px 40px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .guide-card {
+            background: rgba(15,5,5,0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,60,60,0.6);
+            border-radius: 32px;
+            width: 320px;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+        .guide-card:hover {
+            transform: translateY(-10px);
+            border-color: #ff6666;
+            box-shadow: 0 20px 35px rgba(255,0,0,0.3);
+        }
+        .card-img {
+            height: 160px;
+            background: linear-gradient(145deg, #2a0808, #110101);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            border-bottom: 1px solid #ff4444;
+        }
+        .card-content {
+            padding: 20px;
+        }
+        .card-content h3 {
+            font-size: 1.4rem;
+            color: #ff8888;
+            margin-bottom: 10px;
+        }
+        .card-content p {
+            color: #ddbbbb;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+        }
+        .card-tag {
+            background: #aa2222;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        .rating-section {
+            max-width: 800px;
+            margin: 40px auto;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(12px);
+            border: 2px solid #ff4444;
+            border-radius: 36px;
+            padding: 25px;
+            text-align: center;
+        }
+        .rating-section h3 {
+            color: #ff8888;
+            margin-bottom: 10px;
+        }
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+            font-size: 2rem;
+            cursor: pointer;
+        }
+        .star {
+            transition: 0.1s;
+            color: #555;
+        }
+        .star.selected {
+            color: #ffaa00;
+            text-shadow: 0 0 8px orange;
+        }
+        .chat-box {
+            width: 100%;
+            margin-top: 15px;
+            background: #1a0505;
+            border: 1px solid #ff5555;
+            border-radius: 28px;
+            padding: 12px;
+            color: white;
+            font-family: monospace;
+            resize: vertical;
+        }
+        .submit-rating {
+            background: #ff2200;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+        .coming-soon-update {
+            text-align: center;
+            margin: 30px 0 20px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff7777, #ffcccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        .forge-footer {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            border-top: 2px solid #ff3333;
+            padding: 25px 20px;
+            text-align: center;
+        }
+        .google-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(20px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .google-card {
+            background: rgba(20,5,5,0.95);
+            border-radius: 36px;
+            padding: 32px 28px;
+            max-width: 420px;
+            width: 85%;
+            text-align: center;
+            border: 1px solid rgba(255,80,80,0.6);
+            animation: floatIn 0.25s ease;
+        }
+        @keyframes floatIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .google-icon { font-size: 3rem; margin-bottom: 16px; }
+        .google-card h2 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, #ff6666, #ffaaaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .google-card p { color: #ffbbbb; margin: 15px 0 25px; }
+        .google-progress {
+            background: #330000;
+            border-radius: 60px;
+            height: 6px;
+            width: 100%;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .google-progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff8888);
+            animation: loadingFake 3s infinite ease;
+        }
+        @keyframes loadingFake {
+            0% { width: 5%; }
+            50% { width: 70%; }
+            100% { width: 5%; }
+        }
+        .close-google-modal {
+            background: #ff2200;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+        }
+        @media (max-width: 750px) {
+            .navbar { padding: 15px 20px; }
+            .info-section { margin: 20px; padding: 15px; }
+            .guide-card { width: 260px; }
+        }
+    </style>
+</head>
+<body>
+<div class="hero-bg"></div>
+<canvas id="particleField"></canvas>
+
+<nav class="navbar">
+    <div class="logo" id="radiantLogo">RadiantForge</div>
+    <ul class="nav-links">
+        <li><a id="homeLink">Home</a></li>
+        <li><a id="toolsLink">Tools</a></li>
+        <li><a style="color:#ff3333;">Guides</a></li>
+        <li><a id="communityNav">Community</a></li>
+    </ul>
+</nav>
+
+<div class="info-section" id="infoSection">
+    <h2>🌟 About RadiantForge 🌟</h2>
+    <p id="aboutText">RadiantForge is the ultimate all-in-one platform for VALORANT players. We provide advanced tools like Aim Trainer (3D precision), Crosshair Hub (custom codes), Lineup Library, Challenge Wheels, AI Coach, and Setup Showcase. Our mission is to help you climb from Iron to Radiant with science-backed training and community-driven resources. Every feature is forged with passion — stay tuned for weekly updates!</p>
+    <button id="translateBtn" class="translate-btn">🔁 Translate to العربية</button>
+</div>
+
+<div class="guides-header">
+    <h1>📘 GUIDES & STRATEGIES</h1>
+</div>
+
+<div class="filter-bar">
+    <button class="filter-btn active" data-filter="all">All Guides</button>
+    <button class="filter-btn" data-filter="agent">Agents</button>
+    <button class="filter-btn" data-filter="map">Maps</button>
+    <button class="filter-btn" data-filter="strategy">Strategies</button>
+    <button class="filter-btn" data-filter="mechanics">Mechanics</button>
+</div>
+
+<div class="guides-grid" id="guidesGrid"></div>
+
+<!-- قسم التقييم -->
+<div class="rating-section">
+    <h3>⭐ Rate RadiantForge ⭐</h3>
+    <div class="stars" id="starRating">
+        <span class="star" data-value="1">★</span>
+        <span class="star" data-value="2">★</span>
+        <span class="star" data-value="3">★</span>
+        <span class="star" data-value="4">★</span>
+        <span class="star" data-value="5">★</span>
+        <span class="star" data-value="6">★</span>
+        <span class="star" data-value="7">★</span>
+        <span class="star" data-value="8">★</span>
+        <span class="star" data-value="9">★</span>
+        <span class="star" data-value="10">★</span>
+    </div>
+    <textarea id="ratingComment" class="chat-box" rows="3" placeholder="Write your feedback or suggestion here... (optional)"></textarea>
+    <button id="submitRating" class="submit-rating">📨 Submit Rating</button>
+    <div id="ratingMessage" style="margin-top: 12px; color: #88ff88; font-size: 0.8rem; text-shadow: 0 0 2px black;"></div>
+</div>
+
+<div class="coming-soon-update">
+    ✨ COMING SOON FOR WEBSITE UPDATE — MORE FEATURES, PRO REPLAYS & LIVE COACHING ✨
+</div>
+
+<footer class="forge-footer">
+    <div class="footer-copy">© 2026 <span class="radiant-link" id="footerRadiant">RadiantForge</span> — Forged by Yassin for every radiant aspirant.</div>
+</footer>
+
+<div id="comingSoonModal" class="google-modal">
+    <div class="google-card">
+        <div class="google-icon">⚙️</div>
+        <h2>Coming Soon</h2>
+        <p>This feature is currently under development. The RadiantForge team is forging something amazing for you!</p>
+        <div class="google-progress"><div class="google-progress-fill"></div></div>
+        <button class="close-google-modal" id="closeComingSoonBtn">Got it 🔥</button>
+    </div>
+</div>
+
+<script>
+    // ------------------- جسيمات الخلفية -------------------
+    const canvas = document.getElementById('particleField');
+    const ctx = canvas.getContext('2d');
+    let w, h, particles = [];
+    function resizeCanvas() {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        canvas.width = w;
+        canvas.height = h;
+    }
+    class Particle {
+        constructor() {
+            this.x = Math.random() * w;
+            this.y = Math.random() * h;
+            this.r = Math.random() * 2 + 0.5;
+            this.vx = (Math.random() - 0.5) * 0.25;
+            this.vy = (Math.random() - 0.5) * 0.2;
+            this.alpha = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < 0) this.x = w;
+            if (this.x > w) this.x = 0;
+            if (this.y < 0) this.y = h;
+            if (this.y > h) this.y = 0;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255, 80, 80, ${this.alpha})`;
+            ctx.fill();
+        }
+    }
+    function initParticles() {
+        particles = [];
+        let count = Math.min(380, Math.floor(w * h / 7000));
+        for (let i=0; i<count; i++) particles.push(new Particle());
+    }
+    function animateParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, w, h);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animateParticles);
+    }
+    window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+    resizeCanvas(); initParticles(); animateParticles();
+
+    // ------------------- بيانات الأدلة (إنجليزية وعربية) -------------------
+    const guidesData = [
+        { id:1, title:"Jett: Perfect Entry", category:"agent", desc:"Master Jett's updraft, dash combos, and op-ing. Learn smokes tech and movement." },
+        { id:2, title:"Sova Recon & Shock Darts", category:"agent", desc:"Ultimate Sova guide: double shock, recon lineups on Ascent, Haven, and Fracture." },
+        { id:3, title:"Ascent Map Control", category:"map", desc:"Dominate Ascent with mid control, market executes, and defensive setups." },
+        { id:4, title:"Bind Teleporter Strats", category:"map", desc:"Utilize teleporters effectively, post-plant positions, and hookah control." },
+        { id:5, title:"Ultimate Economy Guide", category:"strategy", desc:"When to full buy, save, or force. Manage team economy for comeback." },
+        { id:6, title:"Crosshair Placement Mastery", category:"mechanics", desc:"Pre-aim angles, slice the pie, head level consistency. Pro methods." },
+        { id:7, title:"Omen One-Way & TP", category:"agent", desc:"Omen's paranoia angles, aggressive teleport spots, and shrouded step." },
+        { id:8, title:"Icebox Advanced Lineups", category:"map", desc:"Sova, Viper, and Killjoy setups on Icebox. B site control." }
+    ];
+    const guidesDataAr = [
+        { id:1, title:"جيت: الاقتحام المثالي", category:"agent", desc:"أتقن مهارات جيت: القفزة، الاندفاع، والقنص. تعلم تقنيات الدخان والحركة." },
+        { id:2, title:"سوفا: القنابل الاستطلاعية والصادمة", category:"agent", desc:"دليل شامل لسوفا: قنابل مزدوجة، خطوط الاستطلاع في أسانت، هيفن، وفراكتشر." },
+        { id:3, title:"السيطرة على خريطة أسانت", category:"map", desc:"سيطر على أسانت عبر منتصف الخريطة، هجمات السوق، والدفاعات." },
+        { id:4, title:"استراتيجيات النقل الآني في باند", category:"map", desc:"استخدم الناقل الآني بفعالية، مواقع ما بعد الزرع، والتحكم في هوكا." },
+        { id:5, title:"دليل الاقتصاد الشامل", category:"strategy", desc:"متى تشتري بالكامل، تدخر، أو تجبر على الشراء. إدارة اقتصاد الفريق." },
+        { id:6, title:"إتقان وضع الكروسهير", category:"mechanics", desc:"التصويب المسبق، الزوايا، مستوى الرأس. طرق احترافية." },
+        { id:7, title:"أومين: الزوايا والنقل", category:"agent", desc:"زوايا البارانويا، مواقع النقل العدوانية، وخطوة الظل." },
+        { id:8, title:"خطوط متقدمة في آيس بوكس", category:"map", desc:"إعدادات سوفا، فايبر، وكيلجوي في آيس بوكس. التحكم في الموقع B." }
+    ];
+    
+    let currentLang = 'en';
+    let activeFilter = 'all';
+    const guidesGridElem = document.getElementById('guidesGrid');
+    
+    function renderGuides() {
+        const data = currentLang === 'en' ? guidesData : guidesDataAr;
+        let filtered = data.filter(g => activeFilter === 'all' || g.category === activeFilter);
+        guidesGridElem.innerHTML = '';
+        filtered.forEach(guide => {
+            let emoji = guide.category === 'agent' ? '🎭' : (guide.category === 'map' ? '🗺️' : (guide.category === 'strategy' ? '🧠' : '⚙️'));
+            const card = document.createElement('div');
+            card.className = 'guide-card';
+            card.innerHTML = `
+                <div class="card-img">${emoji}</div>
+                <div class="card-content">
+                    <h3>${guide.title}</h3>
+                    <p>${guide.desc.substring(0, 90)}...</p>
+                    <span class="card-tag">${guide.category.toUpperCase()}</span>
+                    <div style="margin-top:12px; color:#ff8888;">▶ READ GUIDE</div>
+                </div>
+            `;
+            card.addEventListener('click', showComingSoonModal);
+            guidesGridElem.appendChild(card);
+        });
+    }
+    
+    function translatePage() {
+        if (currentLang === 'en') {
+            document.getElementById('aboutText').innerHTML = "RadiantForge هي المنصة الشاملة النهائية للاعبي VALORANT. نقدم أدوات متقدمة مثل مدرب التصويب (ثلاثي الأبعاد)، مركز الكروسهير (أكواد مخصصة)، مكتبة الخطوط، عجلة التحديات، مدرب الذكاء الاصطناعي، وعرض الإعدادات. مهمتنا هي مساعدتك على الصعود من الحديد إلى المشع باستخدام تدريب قائم على العلم وموارد المجتمع. كل ميزة تم تشكيلها بشغف — ترقب التحديثات الأسبوعية!";
+            currentLang = 'ar';
+            document.getElementById('translateBtn').innerHTML = "🔁 Translate to English";
+        } else {
+            document.getElementById('aboutText').innerHTML = "RadiantForge is the ultimate all-in-one platform for VALORANT players. We provide advanced tools like Aim Trainer (3D precision), Crosshair Hub (custom codes), Lineup Library, Challenge Wheels, AI Coach, and Setup Showcase. Our mission is to help you climb from Iron to Radiant with science-backed training and community-driven resources. Every feature is forged with passion — stay tuned for weekly updates!";
+            currentLang = 'en';
+            document.getElementById('translateBtn').innerHTML = "🔁 Translate to العربية";
+        }
+        renderGuides();
+    }
+    
+    // ------------------- نظام التقييم -------------------
+    let selectedRating = 0;
+    const stars = document.querySelectorAll('.star');
+    stars.forEach(star => {
+        star.addEventListener('click', () => {
+            const value = parseInt(star.getAttribute('data-value'));
+            selectedRating = value;
+            stars.forEach(s => {
+                if (parseInt(s.getAttribute('data-value')) <= value) {
+                    s.classList.add('selected');
+                } else {
+                    s.classList.remove('selected');
+                }
+            });
+        });
+    });
+
+    const submitBtn = document.getElementById('submitRating');
+    const ratingMessageDiv = document.getElementById('ratingMessage');
+
+    submitBtn.addEventListener('click', async () => {
+        if (selectedRating === 0) {
+            ratingMessageDiv.innerHTML = "⚠️ Please select a rating (1-10 stars) before submitting.";
+            ratingMessageDiv.style.color = "#ffaaaa";
+            setTimeout(() => {
+                ratingMessageDiv.innerHTML = "";
+                ratingMessageDiv.style.color = "#88ff88";
+            }, 3000);
+            return;
+        }
+        const comment = document.getElementById('ratingComment').value || "No comment provided.";
+        ratingMessageDiv.innerHTML = "⏳ Sending your rating...";
+        ratingMessageDiv.style.color = "#ffffaa";
+
+        const formData = new FormData();
+        formData.append('email', 'matrixsuii84@gmail.com');
+        formData.append('_subject', 'New Rating from RadiantForge');
+        formData.append('rating', `${selectedRating}/10`);
+        formData.append('comment', comment);
+        formData.append('_captcha', 'false');
+        formData.append('_next', 'https://radiantforge.com/thanks.html');
+
+        try {
+            const response = await fetch('https://formsubmit.co/ajax/matrixsuii84@gmail.com', {
+                method: 'POST',
+                body: formData
+            });
+            if (response.ok) {
+                ratingMessageDiv.innerHTML = "✅ Thank you! Your rating has been received. We appreciate your feedback!";
+                ratingMessageDiv.style.color = "#88ff88";
+                selectedRating = 0;
+                stars.forEach(s => s.classList.remove('selected'));
+                document.getElementById('ratingComment').value = '';
+                setTimeout(() => {
+                    ratingMessageDiv.innerHTML = "";
+                }, 5000);
+            } else {
+                throw new Error('Network error');
+            }
+        } catch (error) {
+            ratingMessageDiv.innerHTML = "✅ Thank you! Your feedback is valuable to us.";
+            ratingMessageDiv.style.color = "#88ff88";
+            setTimeout(() => {
+                ratingMessageDiv.innerHTML = "";
+            }, 4000);
+            console.error("FormSubmit error:", error);
+        }
+    });
+    
+    // ------------------- مودال كومنج سون -------------------
+    const modal = document.getElementById('comingSoonModal');
+    function showComingSoonModal() { modal.style.display = 'flex'; }
+    function hideModal() { modal.style.display = 'none'; }
+    document.getElementById('closeComingSoonBtn').addEventListener('click', hideModal);
+    window.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            activeFilter = btn.getAttribute('data-filter');
+            renderGuides();
+            showComingSoonModal();
+        });
+    });
+    
+    // ========== إصلاح الروابط: استخدام المسار الصحيح للعودة إلى الصفحة الرئيسية ==========
+    // بما أن الملف موجود في مجلد pages/، فإن العودة إلى index.html تكون بـ "../index.html"
+    const basePath = window.location.pathname.includes('/pages/') ? '../' : './';
+    
+    document.getElementById('homeLink').addEventListener('click', () => {
+        window.location.href = basePath + 'index.html';
+    });
+    document.getElementById('toolsLink').addEventListener('click', () => {
+        window.location.href = basePath + 'index.html#tools';
+    });
+    document.getElementById('communityNav').addEventListener('click', showComingSoonModal);
+    document.getElementById('translateBtn').addEventListener('click', translatePage);
+    
+    const goHome = () => {
+        window.location.href = basePath + 'index.html';
+    };
+    document.getElementById('radiantLogo').addEventListener('click', goHome);
+    document.getElementById('footerRadiant').addEventListener('click', goHome);
+    
+    renderGuides();
+</script>
+</body>
+</html>

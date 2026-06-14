@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ar" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VALORANT ULTIMATE 3D TRAINER | أحمر & أسود | قائمة ESC</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Segoe UI', 'Orbitron', 'Poppins', monospace;
+            background-color: black;
+            color: #ff3333;
+        }
+
+        /* واجهة رئيسية */
+        .ui-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 20;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-start;
+            pointer-events: none;
+        }
+
+        .stats-panel {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            border: 2px solid #ff3333;
+            border-radius: 16px;
+            padding: 12px 24px;
+            box-shadow: 0 0 20px rgba(255,0,0,0.4);
+            font-weight: bold;
+            pointer-events: auto;
+        }
+
+        .stat {
+            margin: 5px 0;
+            font-size: 1.4rem;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #ff8888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stat-value {
+            color: #ff4444;
+            text-shadow: 0 0 6px red;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .mode-bar {
+            display: flex;
+            gap: 12px;
+            background: rgba(0,0,0,0.8);
+            padding: 8px 18px;
+            border-radius: 60px;
+            border: 1px solid #ff3333;
+            pointer-events: auto;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            background: #1a0000;
+            border: 1px solid #ff5555;
+            color: #ff7777;
+            font-weight: bold;
+            padding: 8px 18px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .mode-btn.active {
+            background: #ff2200;
+            color: black;
+            border-color: white;
+            box-shadow: 0 0 12px red;
+        }
+
+        .mode-btn:hover {
+            background: #ff4444;
+            color: black;
+            transform: scale(1.02);
+        }
+
+        /* قائمة ESC (الإعدادات) */
+        .esc-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(12px);
+            z-index: 200;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.2s, opacity 0.2s;
+            font-family: monospace;
+        }
+        .esc-menu.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+        .menu-card {
+            background: #0a0101;
+            border: 3px solid #ff3333;
+            border-radius: 32px;
+            width: 380px;
+            max-width: 85vw;
+            padding: 25px;
+            box-shadow: 0 0 50px rgba(255,0,0,0.5);
+            text-align: center;
+        }
+        .menu-card h2 {
+            color: #ff6666;
+            margin-top: 0;
+            border-bottom: 1px solid #ff4444;
+            display: inline-block;
+        }
+        .menu-setting {
+            margin: 20px 0;
+            text-align: left;
+        }
+        .menu-setting label {
+            display: block;
+            color: #ffaaaa;
+            margin-bottom: 6px;
+        }
+        .menu-setting input {
+            width: 100%;
+            background: #2a0808;
+            border: 1px solid #ff5555;
+            color: #ffcccc;
+            padding: 6px;
+            border-radius: 12px;
+        }
+        .menu-setting input[type="range"] {
+            padding: 0;
+        }
+        .menu-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+        .menu-buttons button {
+            background: #ff2200;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            color: black;
+        }
+        .menu-buttons button:hover {
+            background: #ff6666;
+        }
+        .crosshair-code-area textarea {
+            background: #1a0000;
+            border: 1px solid #ff5555;
+            color: #ffaaaa;
+            padding: 6px;
+            border-radius: 8px;
+            font-family: monospace;
+            width: 100%;
+        }
+        .info-text {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: #aa5555;
+            font-size: 0.7rem;
+            background: rgba(0,0,0,0.6);
+            padding: 6px 12px;
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 20;
+        }
+        /* كروسهير ديناميكي */
+        #dynamicCrosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            pointer-events: none;
+            z-index: 200;
+        }
+        .cross-line {
+            background-color: #ff3333;
+            position: absolute;
+            box-shadow: 0 0 4px black;
+        }
+        .hit-flash {
+            animation: flashAnim 0.08s ease-out;
+        }
+        @keyframes flashAnim {
+            0% { opacity: 1; text-shadow: 0 0 0 red; }
+            100% { opacity: 0.6; text-shadow: 0 0 12px red; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ui-container">
+        <div class="stats-panel">
+            <div class="stat"><span class="stat-label">🎯 SCORE</span> <span class="stat-value" id="scoreVal">0</span></div>
+            <div class="stat"><span class="stat-label">🎯 HITS/SHOTS</span> <span class="stat-value" id="hitRatio">0/0</span></div>
+            <div class="stat"><span class="stat-label">📊 ACCURACY</span> <span class="stat-value" id="accVal">0%</span></div>
+            <div class="stat"><span class="stat-label">⏱ TIME</span> <span class="stat-value" id="timeVal">30</span></div>
+        </div>
+        <div class="mode-bar">
+            <button class="mode-btn active" data-mode="sixshot">⚡ SIXSHOT (终极)</button>
+            <button class="mode-btn" data-mode="gridshot">🔲 GRID SHOT (3 أهداف)</button>
+            <button class="mode-btn" data-mode="straf">🌀 ULTIMATE STRAF</button>
+            <button class="mode-btn" id="resetBtn">⟳ إعادة التشغيل</button>
+        </div>
+    </div>
+
+    <!-- قائمة ESC -->
+    <div id="escMenu" class="esc-menu">
+        <div class="menu-card">
+            <h2>⚙️ قائمة الإعدادات</h2>
+            <div class="menu-setting">
+                <label>🎮 حساسية VALORANT: <span id="menuSensVal">0.70</span></label>
+                <input type="range" id="menuSensitivity" min="0.1" max="2.5" step="0.01" value="0.70">
+            </div>
+            <div class="menu-setting">
+                <label>🔫 كود الكروسهير (Paste Code)</label>
+                <textarea id="menuCrosshairCode" rows="2" placeholder="ألصق كود فالورانت هنا"></textarea>
+                <button id="applyMenuCode" style="margin-top:8px; background:#ff2200; border:none; padding:4px; border-radius:20px;">تطبيق الكود</button>
+            </div>
+            <div class="menu-buttons">
+                <button id="resumeGameBtn">استئناف اللعب</button>
+                <button id="resetFromMenuBtn">إعادة تشغيل الجولة</button>
+            </div>
+            <div style="font-size:0.7rem; color:#aa5555; margin-top:15px;">اضغط ESC مرة أخرى للإغلاق</div>
+        </div>
+    </div>
+
+    <div class="info-text">🔥 3D ULTIMATE | حركة ماوس فورية (بدون ديلاي) | ESC للإعدادات | الجدران الحمراء</div>
+    <div id="dynamicCrosshair"></div>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // ------------------- المشهد -------------------
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050005);
+        scene.fog = new THREE.FogExp2(0x050005, 0.006);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 100);
+        camera.position.set(0, 1.65, 5);
+        
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+        
+        // ------------------- بيئة الجدران (أحمر/أسود) -------------------
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x1a0505, roughness: 0.7 });
+        const floor = new THREE.Mesh(new THREE.PlaneGeometry(18, 14), floorMat);
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -1.3;
+        floor.receiveShadow = true;
+        scene.add(floor);
+        
+        const wallMat = new THREE.MeshStandardMaterial({ color: 0x2a0808, emissive: 0x220000 });
+        const backWall = new THREE.Mesh(new THREE.BoxGeometry(16, 4.5, 0.3), wallMat);
+        backWall.position.set(0, 0.8, -7.2);
+        scene.add(backWall);
+        
+        const rightWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.5, 12), wallMat);
+        rightWall.position.set(7.5, 0.8, -1);
+        scene.add(rightWall);
+        
+        const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.3, 4.5, 12), wallMat);
+        leftWall.position.set(-7.5, 0.8, -1);
+        scene.add(leftWall);
+        
+        // زخارف
+        const edgesGeo = new THREE.EdgesGeometry(backWall.geometry);
+        const edgesMat = new THREE.LineBasicMaterial({ color: 0xff3333 });
+        const wireframe = new THREE.LineSegments(edgesGeo, edgesMat);
+        wireframe.position.copy(backWall.position);
+        scene.add(wireframe);
+        
+        // إضاءة محسنة
+        const ambient = new THREE.AmbientLight(0x331111);
+        scene.add(ambient);
+        const mainLight = new THREE.DirectionalLight(0xff6644, 1.2);
+        mainLight.position.set(3, 5, 2);
+        mainLight.castShadow = true;
+        scene.add(mainLight);
+        const fillRed = new THREE.PointLight(0xcc3333, 0.6);
+        fillRed.position.set(-2, 1, -3);
+        scene.add(fillRed);
+        
+        // جسيمات خلفية
+        const particleCount = 1000;
+        const particleGeo = new THREE.BufferGeometry();
+        const posArray = [];
+        for (let i = 0; i < particleCount; i++) {
+            posArray.push((Math.random() - 0.5) * 40);
+            posArray.push((Math.random() - 0.5) * 18);
+            posArray.push((Math.random() - 0.5) * 25 - 12);
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(posArray), 3));
+        const particles = new THREE.Points(particleGeo, new THREE.PointsMaterial({ color: 0xaa3333, size: 0.06, transparent: true, opacity: 0.35 }));
+        scene.add(particles);
+        
+        // ------------------- متغيرات اللعبة (بدون ديلاي في حركة الماوس) -------------------
+        let gameActive = true;
+        let currentMode = 'sixshot';
+        let score = 0, hits = 0, shots = 0, timeLeft = 30;
+        let gameTimer = null;
+        let targets = [];
+        
+        // نظام الماوس - استجابة فورية بدون استيفاء (لا ديلاي)
+        let mouseX = 0, mouseY = 0;
+        let pointerLocked = false;
+        let sensitivity = 0.70;
+        
+        // معكوس كلياً: يمين -> يسار، فوق -> تحت
+        function onRawMouseMove(e) {
+            if (!pointerLocked || !gameActive) return;
+            // تطبيق الحساسية وعكس كامل
+            mouseX += -e.movementX * (sensitivity * 0.0022);
+            mouseY += -e.movementY * (sensitivity * 0.0022);
+            mouseY = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, mouseY));
+            // تطبيق مباشر على الكاميرا (بدون استيفاء)
+            camera.rotation.order = 'YXZ';
+            camera.rotation.y = mouseX;
+            camera.rotation.x = mouseY;
+        }
+        
+        renderer.domElement.addEventListener('click', () => renderer.domElement.requestPointerLock());
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement === renderer.domElement) {
+                pointerLocked = true;
+                document.addEventListener('mousemove', onRawMouseMove);
+            } else {
+                pointerLocked = false;
+                document.removeEventListener('mousemove', onRawMouseMove);
+            }
+        });
+        
+        // تحديث الكاميرا غير مطلوب الآن لأننا نطبق مباشرة، لكن نحتفظ بدالة فارغة للتوافق
+        
+        // ------------------- الكروسهير الذكي (يعمل بنفسه ويحسن الكود) -------------------
+        const dynamicCross = document.getElementById('dynamicCrosshair');
+        function renderCrosshairFromCode(code) {
+            dynamicCross.innerHTML = '';
+            let color = '#ff3333';
+            let hasDot = false;
+            let isCircle = false;
+            let thickness = 2;
+            let length = 12;
+            let gap = 4;
+            if (code && code.trim() !== '') {
+                const lower = code.toLowerCase();
+                if (lower.includes('dot')) hasDot = true;
+                if (lower.includes('circle')) isCircle = true;
+                const colorMatch = code.match(/c;([0-9a-f]{6})/i);
+                if (colorMatch) color = '#' + colorMatch[1];
+                const thickMatch = code.match(/t;([0-9])/);
+                if (thickMatch) thickness = parseInt(thickMatch[1]) + 1;
+                const lenMatch = code.match(/l;([0-9])/);
+                if (lenMatch) length = 12 + parseInt(lenMatch[1]) * 2;
+                const gapMatch = code.match(/g;([0-9])/);
+                if (gapMatch) gap = 2 + parseInt(gapMatch[1]) * 2;
+            }
+            if (hasDot) {
+                const dot = document.createElement('div');
+                dot.style.width = '6px';
+                dot.style.height = '6px';
+                dot.style.backgroundColor = color;
+                dot.style.borderRadius = '50%';
+                dot.style.position = 'absolute';
+                dot.style.top = '50%';
+                dot.style.left = '50%';
+                dot.style.transform = 'translate(-50%, -50%)';
+                dynamicCross.appendChild(dot);
+            } else if (isCircle) {
+                const circle = document.createElement('div');
+                circle.style.width = '20px';
+                circle.style.height = '20px';
+                circle.style.border = `2px solid ${color}`;
+                circle.style.borderRadius = '50%';
+                circle.style.position = 'absolute';
+                circle.style.top = '50%';
+                circle.style.left = '50%';
+                circle.style.transform = 'translate(-50%, -50%)';
+                dynamicCross.appendChild(circle);
+            } else {
+                const lineH = document.createElement('div');
+                lineH.className = 'cross-line';
+                lineH.style.width = `${length}px`;
+                lineH.style.height = `${thickness}px`;
+                lineH.style.backgroundColor = color;
+                lineH.style.top = '50%';
+                lineH.style.left = `calc(50% - ${length/2}px)`;
+                lineH.style.transform = 'translateY(-50%)';
+                const lineV = document.createElement('div');
+                lineV.className = 'cross-line';
+                lineV.style.width = `${thickness}px`;
+                lineV.style.height = `${length}px`;
+                lineV.style.backgroundColor = color;
+                lineV.style.left = '50%';
+                lineV.style.top = `calc(50% - ${length/2}px)`;
+                lineV.style.transform = 'translateX(-50%)';
+                dynamicCross.appendChild(lineH);
+                dynamicCross.appendChild(lineV);
+                if (gap > 2) {
+                    const center = document.createElement('div');
+                    center.style.width = `${gap}px`;
+                    center.style.height = `${gap}px`;
+                    center.style.position = 'absolute';
+                    center.style.top = '50%';
+                    center.style.left = '50%';
+                    center.style.transform = 'translate(-50%, -50%)';
+                    center.style.backgroundColor = 'transparent';
+                    dynamicCross.appendChild(center);
+                }
+            }
+        }
+        
+        // تحميل الكود المخزن أو الافتراضي
+        let savedCrossCode = localStorage.getItem('user_crosshair_code') || '';
+        if (savedCrossCode) renderCrosshairFromCode(savedCrossCode);
+        else renderCrosshairFromCode('0;P;c;5;h;0;0l;4;0o;2;0a;1;0f;0');
+        
+        function flashCrosshair() {
+            dynamicCross.classList.add('hit-flash');
+            setTimeout(() => dynamicCross.classList.remove('hit-flash'), 100);
+        }
+        
+        // ------------------- وظائف الأهداف -------------------
+        function createTargetMesh(x, y, z, radius = 0.28) {
+            const geometry = new THREE.SphereGeometry(radius, 32, 32);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xdd2222,
+                emissive: 0x441111,
+                emissiveIntensity: 0.5,
+                roughness: 0.2,
+                metalness: 0.8
+            });
+            const sphere = new THREE.Mesh(geometry, material);
+            sphere.position.set(x, y, z);
+            sphere.castShadow = true;
+            scene.add(sphere);
+            return sphere;
+        }
+        
+        function clearTargets() {
+            targets.forEach(t => scene.remove(t.mesh));
+            targets = [];
+        }
+        
+        // SIXSHOT: 6 أهداف متباعدة (بدون تداخل)
+        function generateSixShot() {
+            clearTargets();
+            const positions = [];
+            for (let i = 0; i < 6; i++) {
+                let x, y, z, overlap;
+                let attempts = 0;
+                do {
+                    overlap = false;
+                    x = (Math.random() - 0.5) * 6.4;
+                    y = (Math.random() - 0.5) * 2.8 + 0.8;
+                    z = -3.5 - Math.random() * 3.8;
+                    for (let p of positions) {
+                        if (Math.hypot(p.x - x, p.y - y, p.z - z) < 0.9) {
+                            overlap = true;
+                            break;
+                        }
+                    }
+                    attempts++;
+                    if (attempts > 50) break;
+                } while (overlap);
+                positions.push({ x, y, z });
+                const mesh = createTargetMesh(x, y, z, 0.28);
+                targets.push({ mesh });
+            }
+        }
+        
+        // GRID SHOT: 3 أهداف على شبكة (مع رفع y لتبقى فوق الأرض)
+        let gridPoints = [];
+        function buildGridPoints() {
+            const points = [];
+            for (let row = -2; row <= 2; row++) {
+                for (let col = -3; col <= 3; col++) {
+                    // رفع y من 0.3 إلى 0.9 لضمان عدم تحت الأرض
+                    points.push({ x: col * 1.15, y: row * 0.85 + 1.0, z: -4.6 });
+                }
+            }
+            return points;
+        }
+        function initGridTargets() {
+            if (gridPoints.length === 0) gridPoints = buildGridPoints();
+            clearTargets();
+            // اختيار 3 أهداف عشوائية مختلفة
+            const shuffled = [...gridPoints];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            const selected = shuffled.slice(0, 3);
+            for (let pos of selected) {
+                const mesh = createTargetMesh(pos.x, pos.y, pos.z, 0.32);
+                targets.push({ mesh, posData: pos });
+            }
+        }
+        function addGridTarget() {
+            const available = gridPoints.filter(p => !targets.some(t => t.posData && t.posData.x === p.x && t.posData.y === p.y));
+            if (available.length === 0) return;
+            const newPos = available[Math.floor(Math.random() * available.length)];
+            const mesh = createTargetMesh(newPos.x, newPos.y, newPos.z, 0.32);
+            targets.push({ mesh, posData: newPos });
+        }
+        
+        // ULTIMATE STRAF
+        const strafBounds = { xMin: -6, xMax: 6, yMin: -0.8, yMax: 2.8, zMin: -6.8, zMax: -2.8 };
+        function generateStrafTargets() {
+            clearTargets();
+            for (let i = 0; i < 4; i++) {
+                const x = (Math.random() - 0.5) * 9;
+                const y = (Math.random() - 0.5) * 3 + 0.8;
+                const z = -4.5 + Math.random() * -2;
+                const mesh = createTargetMesh(x, y, z, 0.31);
+                const velX = (Math.random() - 0.5) * 0.22;
+                const velY = (Math.random() - 0.5) * 0.18;
+                const velZ = (Math.random() - 0.5) * 0.15;
+                targets.push({ mesh, velocity: { x: velX, y: velY, z: velZ } });
+            }
+        }
+        function updateStrafMovement() {
+            if (currentMode !== 'straf' || !gameActive) return;
+            for (let t of targets) {
+                let pos = t.mesh.position;
+                pos.x += t.velocity.x;
+                pos.y += t.velocity.y;
+                pos.z += t.velocity.z;
+                if (pos.x < strafBounds.xMin) { pos.x = strafBounds.xMin; t.velocity.x = -t.velocity.x; }
+                if (pos.x > strafBounds.xMax) { pos.x = strafBounds.xMax; t.velocity.x = -t.velocity.x; }
+                if (pos.y < strafBounds.yMin) { pos.y = strafBounds.yMin; t.velocity.y = -t.velocity.y; }
+                if (pos.y > strafBounds.yMax) { pos.y = strafBounds.yMax; t.velocity.y = -t.velocity.y; }
+                if (pos.z < strafBounds.zMin) { pos.z = strafBounds.zMin; t.velocity.z = -t.velocity.z; }
+                if (pos.z > strafBounds.zMax) { pos.z = strafBounds.zMax; t.velocity.z = -t.velocity.z; }
+            }
+        }
+        
+        // التصويب
+        const raycaster = new THREE.Raycaster();
+        const center = new THREE.Vector2(0, 0);
+        function shoot() {
+            if (!gameActive) return;
+            raycaster.setFromCamera(center, camera);
+            const intersects = raycaster.intersectObjects(targets.map(t => t.mesh));
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const targetObj = targets.find(t => t.mesh === hitMesh);
+                if (targetObj) {
+                    hits++;
+                    score += (currentMode === 'gridshot' ? 15 : 10);
+                    shots++;
+                    updateUI();
+                    flashCrosshair();
+                    hitMesh.material.emissiveIntensity = 1.4;
+                    setTimeout(() => { if (hitMesh.material) hitMesh.material.emissiveIntensity = 0.4; }, 90);
+                    
+                    if (currentMode === 'sixshot') {
+                        const idx = targets.indexOf(targetObj);
+                        if (idx !== -1) {
+                            scene.remove(targetObj.mesh);
+                            targets.splice(idx, 1);
+                            let x, y, z;
+                            let overlap;
+                            do {
+                                overlap = false;
+                                x = (Math.random() - 0.5) * 6.4;
+                                y = (Math.random() - 0.5) * 2.8 + 0.8;
+                                z = -3.5 - Math.random() * 3.8;
+                                for (let t of targets) {
+                                    if (Math.hypot(t.mesh.position.x - x, t.mesh.position.y - y, t.mesh.position.z - z) < 0.85) {
+                                        overlap = true;
+                                        break;
+                                    }
+                                }
+                            } while (overlap);
+                            const newMesh = createTargetMesh(x, y, z, 0.28);
+                            targets.push({ mesh: newMesh });
+                        }
+                    } 
+                    else if (currentMode === 'gridshot') {
+                        const idx = targets.indexOf(targetObj);
+                        if (idx !== -1) {
+                            scene.remove(targetObj.mesh);
+                            targets.splice(idx, 1);
+                            addGridTarget();
+                        }
+                    }
+                    else if (currentMode === 'straf') {
+                        const x = (Math.random() - 0.5) * 8;
+                        const y = (Math.random() - 0.5) * 3 + 0.8;
+                        const z = -4.5 + Math.random() * -2;
+                        targetObj.mesh.position.set(x, y, z);
+                        targetObj.velocity = {
+                            x: (Math.random() - 0.5) * 0.24,
+                            y: (Math.random() - 0.5) * 0.2,
+                            z: (Math.random() - 0.5) * 0.17
+                        };
+                    }
+                    return;
+                }
+            }
+            shots++;
+            updateUI();
+        }
+        
+        window.addEventListener('click', (e) => {
+            if (pointerLocked && gameActive && e.target === renderer.domElement) shoot();
+        });
+        
+        // ------------------- واجهة المستخدم والمؤقت -------------------
+        function updateUI() {
+            document.getElementById('scoreVal').innerText = score;
+            document.getElementById('hitRatio').innerText = `${hits}/${shots}`;
+            let acc = shots === 0 ? 0 : (hits / shots * 100);
+            document.getElementById('accVal').innerHTML = Math.floor(acc) + '%';
+            document.getElementById('timeVal').innerText = timeLeft;
+        }
+        
+        function endGame() {
+            gameActive = false;
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = null;
+        }
+        
+        function startTimer() {
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(() => {
+                if (!gameActive) return;
+                if (timeLeft <= 1) {
+                    timeLeft = 0;
+                    updateUI();
+                    endGame();
+                } else {
+                    timeLeft--;
+                    updateUI();
+                }
+            }, 1000);
+        }
+        
+        function switchMode(mode) {
+            currentMode = mode;
+            clearTargets();
+            gameActive = true;
+            score = 0; hits = 0; shots = 0; timeLeft = 30;
+            updateUI();
+            if (gameTimer) clearInterval(gameTimer);
+            startTimer();
+            if (mode === 'sixshot') generateSixShot();
+            else if (mode === 'gridshot') initGridTargets();
+            else if (mode === 'straf') generateStrafTargets();
+        }
+        
+        function resetGame() {
+            gameActive = true;
+            score = 0; hits = 0; shots = 0; timeLeft = 30;
+            updateUI();
+            if (gameTimer) clearInterval(gameTimer);
+            startTimer();
+            clearTargets();
+            if (currentMode === 'sixshot') generateSixShot();
+            else if (currentMode === 'gridshot') initGridTargets();
+            else if (currentMode === 'straf') generateStrafTargets();
+        }
+        
+        // ربط الأزرار الرئيسية
+        document.querySelectorAll('.mode-btn[data-mode]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const mode = btn.getAttribute('data-mode');
+                switchMode(mode);
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        document.getElementById('resetBtn').addEventListener('click', resetGame);
+        
+        // ------------------- قائمة ESC -------------------
+        const escMenu = document.getElementById('escMenu');
+        let isMenuOpen = false;
+        function toggleMenu() {
+            if (!isMenuOpen) {
+                escMenu.classList.add('visible');
+                if (pointerLocked) document.exitPointerLock();
+                isMenuOpen = true;
+                // مزامنة قيم القائمة مع الإعدادات الحالية
+                document.getElementById('menuSensitivity').value = sensitivity;
+                document.getElementById('menuSensVal').innerText = sensitivity.toFixed(2);
+                document.getElementById('menuCrosshairCode').value = savedCrossCode;
+            } else {
+                escMenu.classList.remove('visible');
+                isMenuOpen = false;
+                renderer.domElement.requestPointerLock(); // إعادة قفل الفأرة
+            }
+        }
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                toggleMenu();
+            }
+        });
+        // أحداث القائمة
+        const menuSens = document.getElementById('menuSensitivity');
+        const menuSensVal = document.getElementById('menuSensVal');
+        menuSens.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            sensitivity = val;
+            menuSensVal.innerText = val.toFixed(2);
+            localStorage.setItem('valorant_sens', val);
+        });
+        document.getElementById('applyMenuCode').addEventListener('click', () => {
+            const code = document.getElementById('menuCrosshairCode').value;
+            savedCrossCode = code;
+            localStorage.setItem('user_crosshair_code', code);
+            renderCrosshairFromCode(code);
+        });
+        document.getElementById('resumeGameBtn').addEventListener('click', () => {
+            if (isMenuOpen) toggleMenu();
+        });
+        document.getElementById('resetFromMenuBtn').addEventListener('click', () => {
+            resetGame();
+            if (isMenuOpen) toggleMenu();
+        });
+        
+        // تحميل الحساسية المخزنة
+        if (localStorage.getItem('valorant_sens')) {
+            sensitivity = parseFloat(localStorage.getItem('valorant_sens'));
+            menuSens.value = sensitivity;
+            menuSensVal.innerText = sensitivity.toFixed(2);
+        }
+        
+        // بدء الوضع الافتراضي
+        switchMode('sixshot');
+        document.querySelector('.mode-btn[data-mode="sixshot"]').classList.add('active');
+        
+        // ------------------- أنيميشن -------------------
+        function animate() {
+            requestAnimationFrame(animate);
+            if (currentMode === 'straf' && gameActive) updateStrafMovement();
+            particles.rotation.y += 0.0008;
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>

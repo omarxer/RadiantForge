@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>RadiantForge | الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #0a0303;
+            color: #f0f0f0;
+            overflow-x: hidden;
+        }
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 20% 30%, #1a0303, #000000);
+        }
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: repeating-linear-gradient(45deg, rgba(255,30,30,0.03) 0px, rgba(255,30,30,0.03) 2px, transparent 2px, transparent 12px);
+            animation: shiftMesh 30s linear infinite;
+        }
+        @keyframes shiftMesh {
+            0% { transform: translate(0,0); }
+            100% { transform: translate(80px,80px); }
+        }
+        #particleCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.5;
+        }
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 50px;
+            background: rgba(10,5,5,0.7);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,50,50,0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff4444, #ff8888);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+            transition: 0.2s;
+            letter-spacing: 3px;
+        }
+        .logo:hover {
+            transform: scale(1.02);
+            text-shadow: 0 0 25px red;
+        }
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            list-style: none;
+        }
+        .nav-links a {
+            text-decoration: none;
+            color: #ffbbbb;
+            font-weight: 600;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .nav-links a:hover {
+            color: #ff3333;
+            text-shadow: 0 0 8px red;
+        }
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .hero h1 {
+            font-size: 5rem;
+            background: linear-gradient(135deg, #ff5555, #ffaaaa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 6px;
+            animation: fadeInUp 1s ease;
+        }
+        .hero p {
+            font-size: 1.2rem;
+            color: #ffcccc;
+            margin-top: 20px;
+            max-width: 700px;
+            animation: fadeInUp 1s 0.1s backwards;
+        }
+        .hero-btn {
+            margin-top: 40px;
+            background: linear-gradient(45deg, #aa2222, #ff4444);
+            border: none;
+            padding: 14px 38px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(255,0,0,0.6);
+        }
+        .hero-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px red;
+        }
+        .features {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 35px;
+            padding: 60px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(20,5,5,0.65);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,60,60,0.5);
+            border-radius: 32px;
+            padding: 30px 25px;
+            width: 300px;
+            text-align: center;
+            transition: 0.25s ease;
+            cursor: pointer;
+        }
+        .card:hover {
+            transform: translateY(-12px);
+            border-color: #ff5555;
+            box-shadow: 0 20px 35px rgba(255,0,0,0.3);
+        }
+        .card h2 { font-size: 1.8rem; color: #ff8888; margin-bottom: 15px; }
+        .card p { color: #ddbbbb; font-size: 0.9rem; margin-bottom: 25px; }
+        .card button {
+            background: #aa2222;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            font-family: 'Orbitron', monospace;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .card button:hover {
+            background: #ff3333;
+            box-shadow: 0 0 12px red;
+        }
+        .forge-footer {
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(12px);
+            border-top: 2px solid #ff3333;
+            padding: 30px 20px;
+            text-align: center;
+            margin-top: 40px;
+        }
+        .coming-soon-glow {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ff6666, #ffcccc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 4px;
+        }
+        .footer-quote {
+            color: #aa7777;
+            font-size: 0.8rem;
+            margin-top: 15px;
+        }
+        .radiant-link {
+            cursor: pointer;
+            color: #ff8888;
+            font-weight: bold;
+        }
+        /* مودال المجتمع */
+        .community-modal, .comingsoon-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(20px);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .community-box, .comingsoon-box {
+            background: #0f0505;
+            border: 2px solid #ff4444;
+            border-radius: 48px;
+            max-width: 500px;
+            width: 90%;
+            padding: 35px 25px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 60px rgba(255,0,0,0.4);
+        }
+        .close-community, .close-comingsoon {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 35px;
+            cursor: pointer;
+            color: #ff7777;
+            transition: 0.2s;
+        }
+        .close-community:hover, .close-comingsoon:hover {
+            color: #ff3333;
+        }
+        .community-box h2, .comingsoon-box h2 {
+            font-size: 2rem;
+            color: #ff6666;
+            margin-bottom: 10px;
+        }
+        .community-subtitle {
+            color: #ffaaaa;
+            margin-bottom: 25px;
+        }
+        .community-links {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin: 25px 0;
+        }
+        .community-card {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: #1f0a0a;
+            padding: 15px 20px;
+            border-radius: 28px;
+            text-decoration: none;
+            transition: 0.2s;
+            border: 1px solid #aa4444;
+        }
+        .community-card span {
+            font-size: 2rem;
+        }
+        .community-card h3 {
+            margin: 0;
+            color: #ffaaaa;
+        }
+        .community-card p {
+            margin: 0;
+            font-size: 0.7rem;
+            color: #aa7777;
+        }
+        .community-card:hover:not(.disabled) {
+            background: #ff2200;
+            transform: scale(1.02);
+        }
+        .community-card.disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+        .forge-coming-soon {
+            margin-top: 20px;
+            font-style: italic;
+            color: #ff8888;
+            letter-spacing: 1px;
+        }
+        .progress-bar {
+            background: #330000;
+            border-radius: 60px;
+            height: 6px;
+            width: 100%;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ff8888);
+            animation: loadingFake 3s infinite ease;
+        }
+        @keyframes loadingFake {
+            0% { width: 5%; }
+            50% { width: 70%; }
+            100% { width: 5%; }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 800px) {
+            .navbar { padding: 15px 20px; }
+            .hero h1 { font-size: 2.6rem; }
+            .card { width: 260px; }
+            .coming-soon-glow { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="animated-bg"></div>
+<canvas id="particleCanvas"></canvas>
+
+<nav class="navbar">
+    <div class="logo" id="radiantLogo">RadiantForge</div>
+    <ul class="nav-links">
+        <li><a href="#" id="homeLink">Home</a></li>
+        <li><a href="#" id="toolsLink">Tools</a></li>
+        <li><a href="#" id="guidesLink">Guides</a></li>
+        <li><a href="#" id="communityLink">Community</a></li>
+    </ul>
+</nav>
+
+<section class="hero">
+    <h1>RADIANTFORGE</h1>
+    <p>Everything A Valorant Player Needs In One Place</p>
+    <button class="hero-btn" id="enterForgeBtn">Enter The Forge</button>
+</section>
+
+<section class="features" id="tools">
+    <div class="card" data-page="aimtrainer.html">
+        <h2>🎯 Aim Trainer</h2>
+        <p>Improve reaction time, accuracy and consistency.</p>
+        <button>Open Tool</button>
+    </div>
+    <div class="card" data-page="crosshair.html">
+        <h2>➕ Crosshair Hub</h2>
+        <p>Discover and create powerful crosshairs.</p>
+        <button>Open Tool</button>
+    </div>
+    <div class="card" data-page="lineups.html">
+        <h2>📚 Lineup Library</h2>
+        <p>Learn lineups for every agent and map.</p>
+        <button>Open Tool</button>
+    </div>
+    <div class="card" data-page="wheels.html">
+        <h2>🎲 Challenge Wheels</h2>
+        <p>Random agents, weapons and fun challenges.</p>
+        <button>Open Tool</button>
+    </div>
+    <div class="card" data-page="aicoach.html">
+        <h2>🧠 AI Coach</h2>
+        <p>Get personalized training plans.</p>
+        <button>Open Tool</button>
+    </div>
+    <div class="card" id="setupShowcaseCard">
+        <h2>⭐ Setup Showcase</h2>
+        <p>Share your gaming setup.</p>
+        <button>Coming Soon</button>
+    </div>
+</section>
+
+<footer class="forge-footer">
+    <div class="coming-soon-glow">✨ COMING SOON: RANKED ANALYTICS • 1V1 ARENAS • PRO MATCHES ✨</div>
+    <div class="footer-quote">© 2026 <span class="radiant-link" id="footerRadiant">RadiantForge</span> — Forged by Yassin for every radiant aspirant.</div>
+</footer>
+
+<!-- مودال المجتمع -->
+<div id="communityModal" class="community-modal">
+    <div class="community-box">
+        <span class="close-community">&times;</span>
+        <h2>JOIN THE FORGE</h2>
+        <p class="community-subtitle">Become part of RadiantForge Community</p>
+        <div class="community-links">
+            <a class="community-card" href="https://www.youtube.com/@Fasel-wnawasel" target="_blank">
+                <span>▶</span>
+                <div>
+                    <h3>YouTube</h3>
+                    <p>Channel</p>
+                </div>
+            </a>
+            <a class="community-card" href="https://www.instagram.com/ysynshrf439/" target="_blank">
+                <span>◎</span>
+                <div>
+                    <h3>Instagram</h3>
+                    <p>Profile</p>
+                </div>
+            </a>
+            <div class="community-card disabled">
+                <span>◈</span>
+                <div>
+                    <h3>Discord</h3>
+                    <p>Coming Soon</p>
+                </div>
+            </div>
+        </div>
+        <div class="forge-coming-soon">✦ More Features Are Forging... ✦</div>
+    </div>
+</div>
+
+<!-- مودال Coming Soon لـ Setup Showcase -->
+<div id="comingsoonModal" class="comingsoon-modal">
+    <div class="comingsoon-box">
+        <span class="close-comingsoon">&times;</span>
+        <div class="google-icon" style="font-size:3rem;">🔧</div>
+        <h2>Coming Soon</h2>
+        <p>Setup Showcase is currently under construction. We're forging an amazing space for you to share and discover gaming setups. Stay tuned!</p>
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <button class="close-comingsoon-btn" style="background:#ff2200; border:none; padding:10px 24px; border-radius:40px; cursor:pointer; margin-top:10px;">Got it 🔥</button>
+    </div>
+</div>
+
+<script>
+    // جسيمات الخلفية
+    const canvas = document.getElementById('particleCanvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, particles = [];
+    function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
+    }
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = (Math.random() - 0.5) * 0.3;
+            this.speedY = (Math.random() - 0.5) * 0.2;
+            this.color = `rgba(255, ${Math.random()*80+50}, ${Math.random()*60}, ${Math.random()*0.4+0.1})`;
+        }
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0) this.x = width;
+            if (this.x > width) this.x = 0;
+            if (this.y < 0) this.y = height;
+            if (this.y > height) this.y = 0;
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+        }
+    }
+    function initParticles() {
+        particles = [];
+        let count = Math.min(350, Math.floor(width * height / 8000));
+        for (let i=0; i<count; i++) particles.push(new Particle());
+    }
+    function animateParticles() {
+        if (!ctx) return;
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animateParticles);
+    }
+    window.addEventListener('resize', () => { resizeCanvas(); initParticles(); });
+    resizeCanvas(); initParticles(); animateParticles();
+
+    // الانتقال إلى الصفحات (باستثناء Setup Showcase)
+    function navigateTo(page) {
+        window.location.href = `pages/${page}`;
+    }
+    document.querySelectorAll('.card').forEach(card => {
+        const page = card.getAttribute('data-page');
+        if (page) {
+            card.addEventListener('click', () => navigateTo(page));
+        }
+    });
+    document.getElementById('enterForgeBtn').addEventListener('click', () => {
+        document.getElementById('tools').scrollIntoView({ behavior: 'smooth' });
+    });
+    document.getElementById('homeLink').addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    document.getElementById('toolsLink').addEventListener('click', () => document.getElementById('tools').scrollIntoView({ behavior: 'smooth' }));
+    document.getElementById('guidesLink').addEventListener('click', () => navigateTo('guides.html'));
+
+    // ========== مودال المجتمع ==========
+    const modalCommunity = document.getElementById('communityModal');
+    const communityBtn = document.getElementById('communityLink');
+    const closeCommunity = document.querySelector('.close-community');
+    function openCommunityModal() { modalCommunity.style.display = 'flex'; }
+    function closeCommunityModal() { modalCommunity.style.display = 'none'; }
+    if (communityBtn) communityBtn.addEventListener('click', openCommunityModal);
+    if (closeCommunity) closeCommunity.addEventListener('click', closeCommunityModal);
+    window.addEventListener('click', (e) => { if (e.target === modalCommunity) closeCommunityModal(); });
+
+    // ========== مودال Coming Soon لـ Setup Showcase ==========
+    const modalComingSoon = document.getElementById('comingsoonModal');
+    const setupCard = document.getElementById('setupShowcaseCard');
+    const closeComingSoon = document.querySelector('.close-comingsoon');
+    const closeBtn = document.querySelector('.close-comingsoon-btn');
+
+    function openComingSoonModal() {
+        modalComingSoon.style.display = 'flex';
+    }
+    function closeComingSoonModal() {
+        modalComingSoon.style.display = 'none';
+    }
+    if (setupCard) {
+        setupCard.addEventListener('click', openComingSoonModal);
+    }
+    if (closeComingSoon) closeComingSoon.addEventListener('click', closeComingSoonModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeComingSoonModal);
+    window.addEventListener('click', (e) => { if (e.target === modalComingSoon) closeComingSoonModal(); });
+
+    // العودة للرئيسية عبر الشعار
+    const goHome = () => window.location.href = window.location.pathname;
+    document.getElementById('radiantLogo').addEventListener('click', goHome);
+    document.getElementById('footerRadiant').addEventListener('click', goHome);
+</script>
+</body>
+</html>
